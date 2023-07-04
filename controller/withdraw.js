@@ -24,7 +24,7 @@ router.post(
         await sendMail({
           email: req.seller.email,
           subject: "Withdraw Request",
-          message: `Hello ${req.seller.name}, Your withdraw request of ${amount}$ is processing. It will take 3days to 7days to processing! `,
+          message: `Hello ${req.seller.name}, Your withdraw request of Rs.${amount} is processing. It will take 3 to 7 days to processing! `,
         });
         res.status(201).json({
           success: true,
@@ -78,12 +78,12 @@ router.put(
   isAdmin("Admin"),
   catchAsyncErrors(async (req, res, next) => {
     try {
-      const { sellerId } = req.body;
+      const { sellerId, status } = req.body;
 
       const withdraw = await Withdraw.findByIdAndUpdate(
         req.params.id,
         {
-          status: "succeed",
+          status: status,
           updatedAt: Date.now(),
         },
         { new: true }
@@ -91,22 +91,27 @@ router.put(
 
       const seller = await Shop.findById(sellerId);
 
-      const transection = {
-        _id: withdraw._id,
-        amount: withdraw.amount,
-        updatedAt: withdraw.updatedAt,
-        status: withdraw.status,
-      };
+      if (status === "Denied") {
+        seller.availableBalance = seller.availableBalance + withdraw.amount;
+      }
+      if (status === "Succeed") {
+        const transection = {
+          _id: withdraw._id,
+          amount: withdraw.amount,
+          updatedAt: withdraw.updatedAt,
+          status: withdraw.status,
+        };
 
-      seller.transections = [...seller.transections, transection];
+        seller.transections = [...seller.transections, transection];
+      }
 
       await seller.save();
 
       try {
         await sendMail({
           email: seller.email,
-          subject: "Payment confirmation",
-          message: `Hello ${seller.name}, Your withdraw request of ${withdraw.amount}$ is on the way. Delivery time depends on your bank's rules it usually takes 3days to 7days.`,
+          subject: "Payment Confirmation",
+          message: `Hello ${seller.name}, Your withdraw request of Rs.${withdraw.amount} is ${status}.`,
         });
       } catch (error) {
         return next(new ErrorHandler(error.message, 500));

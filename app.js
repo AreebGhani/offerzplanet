@@ -7,7 +7,7 @@ const cors = require("cors");
 const path = require("path");
 
 app.use(cors({
-  origin: 'https://offerzplanet.vercel.app',
+  origin: 'https://offerzplanet.vercel.app/',
   credentials: true
 }));
 
@@ -42,19 +42,19 @@ const withdraw = require("./controller/withdraw");
 const brands = require("./controller/brands");
 const sponsors = require("./controller/sponsors");
 
-app.use("/api/v2/user", user);
-app.use("/api/v2/conversation", conversation);
-app.use("/api/v2/message", message);
-app.use("/api/v2/order", order);
-app.use("/api/v2/shop", shop);
-app.use("/api/v2/product", product);
-app.use("/api/v2/categories", categories);
-app.use("/api/v2/event", event);
-app.use("/api/v2/coupon", coupon);
-app.use("/api/v2/payment", payment);
-app.use("/api/v2/withdraw", withdraw);
-app.use("/api/v2/brands", brands);
-app.use("/api/v2/sponsors", sponsors);
+app.use("/api/user", user);
+app.use("/api/conversation", conversation);
+app.use("/api/message", message);
+app.use("/api/order", order);
+app.use("/api/shop", shop);
+app.use("/api/product", product);
+app.use("/api/categories", categories);
+app.use("/api/event", event);
+app.use("/api/coupon", coupon);
+app.use("/api/payment", payment);
+app.use("/api/withdraw", withdraw);
+app.use("/api/brands", brands);
+app.use("/api/sponsors", sponsors);
 
 // it's for ErrorHandling
 app.use(ErrorHandler);

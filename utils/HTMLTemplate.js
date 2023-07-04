@@ -4,7 +4,7 @@ const HTMLTemplate = (text) => {
       <html>
         <head>
           <meta charset="utf-8">
-          <title>NodeMailer Email Template</title>
+          <title>Offerz Planet</title>
           <style>
             .container {
               width: 100%;
@@ -39,13 +39,13 @@ const HTMLTemplate = (text) => {
           <div class="container">
             <div class="email">
               <div class="email-header">
-                <h1>E Shop</h1>
+                <h1>Offerz Planet</h1>
               </div>
               <div class="email-body">
                 <p>${text}</p>
               </div>
               <div class="email-footer">
-                <p>&copy; - 2023</p>
+                <p>Connect Customers With Sellers. &copy; - 2023</p>
               </div>
             </div>
           </div>

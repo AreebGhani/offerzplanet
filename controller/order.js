@@ -5,6 +5,7 @@ const catchAsyncErrors = require("../middleware/catchAsyncErrors");
 const { isAuthenticated, isSeller, isAdmin } = require("../middleware/auth");
 const Order = require("../model/order");
 const Shop = require("../model/shop");
+const Event = require("../model/event");
 const Product = require("../model/product");
 
 // create new order
@@ -102,7 +103,8 @@ router.put(
       }
       if (req.body.status === "Transferred to delivery partner") {
         order.cart.forEach(async (o) => {
-          await updateOrder(o._id, o.qty);
+          o.Finish_Date !== null && o.status === "Running" ? await updateEvent(o._id, o.qty)
+          : await updateOrder(o._id, o.qty);
         });
       }
 
@@ -129,7 +131,16 @@ router.put(
         product.sold_out += qty;
 
         await product.save({ validateBeforeSave: false });
-      }
+      } 
+
+     async function updateEvent(id, qty) {
+        const product = await Event.findById(id);
+
+        product.stock -= qty;
+        product.sold_out += qty;
+
+        await product.save({ validateBeforeSave: false });
+      } 
 
       async function updateSellerInfo(amount) {
         const seller = await Shop.findById(req.seller.id);
@@ -193,7 +204,15 @@ router.put(
 
       if (req.body.status === "Refund Success") {
         order.cart.forEach(async (o) => {
-          await updateOrder(o._id, o.qty);
+          o.Finish_Date !== null && o.status === "Running" ? await updateEvent(o._id, o.qty)
+          : await updateOrder(o._id, o.qty);
+        });
+      }
+
+       if (req.body.status === "Refund Denied") {
+        order.cart.forEach(async (o) => {
+          o.Finish_Date !== null && o.status === "Running" ? await updateEventDenied(o._id, o.qty)
+          : await updateOrderDenied(o._id, o.qty);
         });
       }
 
@@ -205,6 +224,34 @@ router.put(
 
         await product.save({ validateBeforeSave: false });
       }
+
+      async function updateOrderDenied(id, qty) {
+        const product = await Product.findById(id);
+
+        product.stock -= qty;
+        product.sold_out += qty;
+
+        await product.save({ validateBeforeSave: false });
+      }
+
+      async function updateEvent(id, qty) {
+        const product = await Event.findById(id);
+
+        product.stock += qty;
+        product.sold_out -= qty;
+
+        await product.save({ validateBeforeSave: false });
+      }
+
+      async function updateEventDenied(id, qty) {
+        const product = await Event.findById(id);
+
+        product.stock -= qty;
+        product.sold_out += qty;
+
+        await product.save({ validateBeforeSave: false });
+      }
+
     } catch (error) {
       return next(new ErrorHandler(error.message, 500));
     }

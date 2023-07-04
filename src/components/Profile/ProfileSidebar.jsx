@@ -19,6 +19,8 @@ const ProfileSidebar = ({ setActive, active }) => {
   const navigate = useNavigate();
  const {user} = useSelector((state) => state.user);
   const logoutHandler = () => {
+    let e = window.confirm("Do you want to logout?");
+    if(e){
     axios
       .get(`${server}/user/logout`, { withCredentials: true })
       .then((res) => {
@@ -29,6 +31,7 @@ const ProfileSidebar = ({ setActive, active }) => {
       .catch((error) => {
         console.log(error.response.data.message);
       });
+    }
   };
   return (
     <div className="w-full bg-white shadow-sm rounded-[10px] p-4 pt-8">
@@ -136,7 +139,7 @@ const ProfileSidebar = ({ setActive, active }) => {
           >
             <MdOutlineAdminPanelSettings
               size={20}
-              color={active === 7 ? "red" : ""}
+              color={active === 8 ? "red" : ""}
             />
             <span
               className={`pl-3 ${

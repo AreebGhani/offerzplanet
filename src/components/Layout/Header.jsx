@@ -17,6 +17,7 @@ import Cart from "../cart/Cart";
 import Wishlist from "../Wishlist/Wishlist";
 import { RxCross1 } from "react-icons/rx";
 import { getAllCategories } from '../../redux/actions/category';
+import logo from "../../Assests/img/logo.png";
 
 const Header = ({ activeHeading }) => {
   const { isAuthenticated, user } = useSelector((state) => state.user);
@@ -63,10 +64,11 @@ const Header = ({ activeHeading }) => {
     <>
       <div className={`${styles.section}`}>
         <div className="hidden 800px:h-[50px] 800px:my-[20px] 800px:flex items-center justify-between">
-          <div>
+          <div className="w-1/4">
             <Link to="/">
               <img
-                src="https://shopo.quomodothemes.website/assets/images/logo.svg"
+		className="object-contain"
+                src={logo}
                 alt=""
               />
             </Link>
@@ -78,7 +80,7 @@ const Header = ({ activeHeading }) => {
               placeholder="Search Product..."
               value={searchTerm}
               onChange={handleSearchChange}
-              className="h-[40px] w-full px-2 border-[#3957db] border-[2px] rounded-md"
+              className="h-[40px] w-full px-2 border-[#ec1c2c] border-[2px] rounded-md"
             />
             <AiOutlineSearch
               size={30}
@@ -117,7 +119,7 @@ const Header = ({ activeHeading }) => {
       </div>
       <div
         className={`${active === true ? "shadow-sm fixed top-0 left-0 z-10" : null
-          } transition hidden 800px:flex items-center justify-between w-full bg-[#3321c8] h-[70px]`}
+          } transition hidden 800px:flex items-center justify-between w-full bg-[#ec1c2c] h-[70px]`}
       >
         <div
           className={`${styles.section} relative ${styles.noramlFlex} justify-between`}
@@ -216,14 +218,15 @@ const Header = ({ activeHeading }) => {
           <div>
             <BiMenuAltLeft
               size={40}
-              className="ml-4"
+              className="ml-4 cursor-pointer"
               onClick={() => setOpen(true)}
             />
           </div>
-          <div>
+          <div className="w-1/4">
             <Link to="/">
               <img
-                src="https://shopo.quomodothemes.website/assets/images/logo.svg"
+		className="object-contain"
+                src={logo}
                 alt=""
                 className="mt-3 cursor-pointer"
               />
@@ -231,7 +234,7 @@ const Header = ({ activeHeading }) => {
           </div>
           <div>
             <div
-              className="relative mr-[20px]"
+              className="relative mr-[20px] cursor-pointer"
               onClick={() => setOpenCart(true)}
             >
               <AiOutlineShoppingCart size={30} />
@@ -256,7 +259,7 @@ const Header = ({ activeHeading }) => {
               <div className="w-full justify-between flex pr-3">
                 <div>
                   <div
-                    className="relative mr-[15px]"
+                    className="relative mr-[15px] cursor-pointer"
                     onClick={() => setOpenWishlist(true) || setOpen(false)}
                   >
                     <AiOutlineHeart size={30} className="mt-5 ml-3" />
@@ -267,7 +270,7 @@ const Header = ({ activeHeading }) => {
                 </div>
                 <RxCross1
                   size={30}
-                  className="ml-4 mt-5"
+                  className="ml-4 mt-5 cursor-pointer"
                   onClick={() => setOpen(false)}
                 />
               </div>
@@ -276,7 +279,7 @@ const Header = ({ activeHeading }) => {
                 <input
                   type="search"
                   placeholder="Search Product..."
-                  className="h-[40px] w-full px-2 border-[#3957db] border-[2px] rounded-md"
+                  className="h-[40px] w-full px-2 border-[#ec1c2c] border-[2px] rounded-md"
                   value={searchTerm}
                   onChange={handleSearchChange}
                 />

@@ -4,6 +4,7 @@ import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import Loader from "../Layout/Loader";
+import RenderExpandableCell from "../Layout/RenderExpandableCell";
 import { getAllOrdersOfShop } from "../../redux/actions/order";
 import { AiOutlineArrowRight } from "react-icons/ai";
 
@@ -20,17 +21,26 @@ const AllRefundOrders = () => {
   const refundOrders = orders && orders.filter((item) => item.status === "Processing refund"  || item.status === "Refund Success");
 
   const columns = [
-    { field: "id", headerName: "Order ID", minWidth: 150, flex: 0.7 },
+    {
+      field: "id",
+      headerName: "Order ID",
+      minWidth: 130,
+      flex: 0.8,
+      renderCell: params => <RenderExpandableCell {...params} />
+   },
 
     {
       field: "status",
       headerName: "Status",
       minWidth: 130,
-      flex: 0.7,
+      flex: 0.8,
+      renderCell: params => <RenderExpandableCell {...params} />,
       cellClassName: (params) => {
-        return params.getValue(params.id, "status") === "Delivered"
+        return params.getValue(params.id, "status") === "Delivered" || params.getValue(params.id, "status") === "Refund Success"
           ? "greenColor"
-          : "redColor";
+          : params.getValue(params.id, "status") === "Refund Denied"
+            ? "redColor"
+            : "orangeColor";
       },
     },
     {
@@ -38,7 +48,8 @@ const AllRefundOrders = () => {
       headerName: "Items Qty",
       type: "number",
       minWidth: 130,
-      flex: 0.7,
+      flex: 0.8,
+      renderCell: params => <RenderExpandableCell {...params} />
     },
 
     {
@@ -47,6 +58,7 @@ const AllRefundOrders = () => {
       type: "number",
       minWidth: 130,
       flex: 0.8,
+      renderCell: params => <RenderExpandableCell {...params} />
     },
 
     {
@@ -91,7 +103,7 @@ const AllRefundOrders = () => {
           <DataGrid
             rows={row}
             columns={columns}
-            pageSize={10}
+            pageSize={8}
             disableSelectionOnClick
             autoHeight
           />

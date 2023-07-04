@@ -28,7 +28,7 @@ const CreateProduct = () => {
     }
     if (success) {
       toast.success("Product created successfully!");
-      navigate("/dashboard");
+      navigate("/dashboard-products");
       window.location.reload();
     }
   }, [dispatch, error, success]);
@@ -107,6 +107,7 @@ const CreateProduct = () => {
           <select
             className="w-full mt-2 border h-[35px] rounded-[5px]"
             value={category}
+	    required
             onChange={(e) => setCategory(e.target.value)}
           >
             <option value="Choose a category">Choose a category</option>
@@ -136,6 +137,7 @@ const CreateProduct = () => {
           <input
             type="number"
             name="price"
+            required
             value={originalPrice}
             className="mt-2 appearance-none block w-full px-3 h-[35px] border border-gray-300 rounded-[3px] placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
             onChange={(e) => setOriginalPrice(e.target.value)}
@@ -150,6 +152,7 @@ const CreateProduct = () => {
           <input
             type="number"
             name="price"
+            required
             value={discountPrice}
             className="mt-2 appearance-none block w-full px-3 h-[35px] border border-gray-300 rounded-[3px] placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
             onChange={(e) => setDiscountPrice(e.target.value)}
@@ -164,6 +167,7 @@ const CreateProduct = () => {
           <input
             type="number"
             name="price"
+            required
             value={stock}
             className="mt-2 appearance-none block w-full px-3 h-[35px] border border-gray-300 rounded-[3px] placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
             onChange={(e) => setStock(e.target.value)}
@@ -181,6 +185,7 @@ const CreateProduct = () => {
             id="upload"
             className="hidden"
             multiple
+            required
             onChange={handleImageChange}
           />
           <div className="w-full flex items-center flex-wrap">

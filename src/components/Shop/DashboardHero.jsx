@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { AiOutlineArrowRight, AiOutlineMoneyCollect } from "react-icons/ai";
 import styles from "../../styles/styles";
 import { Link } from "react-router-dom";
+import Loader from "../Layout/Loader";
+import RenderExpandableCell from "../Layout/RenderExpandableCell";
 import { MdBorderClear } from "react-icons/md";
 import { useDispatch, useSelector } from "react-redux";
 import { getAllOrdersOfShop } from "../../redux/actions/order";
@@ -13,7 +15,7 @@ const DashboardHero = () => {
   const dispatch = useDispatch();
   const { orders } = useSelector((state) => state.order);
   const { seller } = useSelector((state) => state.seller);
-  const { products } = useSelector((state) => state.products);
+  const { products, isLoading } = useSelector((state) => state.products);
 
   useEffect(() => {
      dispatch(getAllOrdersOfShop(seller._id));
@@ -23,17 +25,25 @@ const DashboardHero = () => {
   const availableBalance = seller?.availableBalance.toFixed(2);
 
   const columns = [
-    { field: "id", headerName: "Order ID", minWidth: 150, flex: 0.7 },
-
+    {
+      field: "id",
+      headerName: "Order ID",
+      minWidth: 130,
+      flex: 0.8,
+      renderCell: params => <RenderExpandableCell {...params} />
+    },
     {
       field: "status",
       headerName: "Status",
       minWidth: 130,
-      flex: 0.7,
+      flex: 0.8,
+      renderCell: params => <RenderExpandableCell {...params} />,
       cellClassName: (params) => {
-        return params.getValue(params.id, "status") === "Delivered"
+       return params.getValue(params.id, "status") === "Delivered" || params.getValue(params.id, "status") === "Refund Success"
           ? "greenColor"
-          : "redColor";
+          : params.getValue(params.id, "status") === "Refund Denied"
+            ? "redColor"
+            : "orangeColor";
       },
     },
     {
@@ -41,7 +51,8 @@ const DashboardHero = () => {
       headerName: "Items Qty",
       type: "number",
       minWidth: 130,
-      flex: 0.7,
+      flex: 0.8,
+      renderCell: params => <RenderExpandableCell {...params} />
     },
 
     {
@@ -50,6 +61,7 @@ const DashboardHero = () => {
       type: "number",
       minWidth: 130,
       flex: 0.8,
+      renderCell: params => <RenderExpandableCell {...params} />
     },
 
     {
@@ -83,6 +95,13 @@ const DashboardHero = () => {
         status: item.status,
       });
   });
+
+  if(isLoading){
+     return (
+	<Loader/>
+     )
+  }
+
   return (
     <div className="w-full p-8">
       <h3 className="text-[22px] font-Poppins pb-2">Overview</h3>
@@ -147,7 +166,7 @@ const DashboardHero = () => {
       <DataGrid
         rows={row}
         columns={columns}
-        pageSize={10}
+        pageSize={3}
         disableSelectionOnClick
         autoHeight
       />

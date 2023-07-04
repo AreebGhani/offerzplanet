@@ -14,7 +14,8 @@ const WithdrawMoney = () => {
   const dispatch = useDispatch();
   const { seller } = useSelector((state) => state.seller);
   const [paymentMethod, setPaymentMethod] = useState(false);
-  const [withdrawAmount, setWithdrawAmount] = useState(50);
+  const [withdrawAmount, setWithdrawAmount] = useState(500);
+  const [loading, setLoading] = useState(false);
   const [bankInfo, setBankInfo] = useState({
     bankName: "",
     bankCountry: "",
@@ -30,6 +31,7 @@ const WithdrawMoney = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
 
     const withdrawMethod = {
       bankName: bankInfo.bankName,
@@ -51,6 +53,7 @@ const WithdrawMoney = () => {
         { withCredentials: true }
       )
       .then((res) => {
+        setLoading(false);
         toast.success("Withdraw method added successfully!");
         dispatch(loadSeller());
         setBankInfo({
@@ -63,6 +66,7 @@ const WithdrawMoney = () => {
         });
       })
       .catch((error) => {
+        setLoading(false);
         console.log(error.response.data.message);
       });
   };
@@ -75,6 +79,7 @@ const WithdrawMoney = () => {
       .then((res) => {
         toast.success("Withdraw method deleted successfully!");
         dispatch(loadSeller());
+        window.location.reload();
       });
   };
 
@@ -83,8 +88,10 @@ const WithdrawMoney = () => {
   };
 
   const withdrawHandler = async () => {
-    if (withdrawAmount < 50 || withdrawAmount > availableBalance) {
+    setLoading(true);
+    if (withdrawAmount < 500 || withdrawAmount > availableBalance) {
       toast.error("You can't withdraw this amount!");
+      setLoading(false);
     } else {
       const amount = withdrawAmount;
       await axios
@@ -95,6 +102,8 @@ const WithdrawMoney = () => {
         )
         .then((res) => {
           toast.success("Withdraw money request is successful!");
+          setLoading(false);
+          window.location.reload();
         });
     }
   };
@@ -109,7 +118,7 @@ const WithdrawMoney = () => {
         </h5>
         <div
           className={`${styles.button} text-white !h-[42px] !rounded`}
-          onClick={() => (availableBalance < 50 ? error() : setOpen(true))}
+          onClick={() => (availableBalance < 500 ? error() : setOpen(true))}
         >
           Withdraw
         </div>
@@ -119,7 +128,7 @@ const WithdrawMoney = () => {
           <div
             className={`w-[95%] 800px:w-[50%] bg-white shadow rounded ${
               paymentMethod ? "h-[80vh] overflow-y-scroll" : "h-[unset]"
-            } min-h-[40vh] p-3`}
+            } min-h-[40vh] p-10`}
           >
             <div className="w-full flex justify-end">
               <RxCross1
@@ -259,7 +268,7 @@ const WithdrawMoney = () => {
                     type="submit"
                     className={`${styles.button} mb-3 text-white`}
                   >
-                    Add
+                    {loading ? "Loading..." : "Add"}
                   </button>
                 </form>
               </div>
@@ -291,7 +300,7 @@ const WithdrawMoney = () => {
                       </div>
                     </div>
                     <br />
-                    <h4>Available Balance: {availableBalance}$</h4>
+                    <h4>Available Balance: Rs.{availableBalance}</h4>
                     <br />
                     <div className="800px:flex w-full items-center">
                       <input
@@ -305,7 +314,7 @@ const WithdrawMoney = () => {
                         className={`${styles.button} !h-[42px] text-white`}
                         onClick={withdrawHandler}
                       >
-                        Withdraw
+                        {loading ? "Loading..." : "Withdraw"}
                       </div>
                     </div>
                   </div>

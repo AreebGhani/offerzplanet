@@ -67,24 +67,31 @@ const Checkout = () => {
     const name = couponCode;
 
     await axios.get(`${server}/coupon/get-coupon-value/${name}`).then((res) => {
-      const shopId = res.data.couponCode?.shopId;
+      const productId = res.data.couponCode?.selectedProduct;
       const couponCodeValue = res.data.couponCode?.value;
+      const minAmount = res.data.couponCode?.minAmount;
+      const maxAmount = res.data.couponCode?.maxAmount;
       if (res.data.couponCode !== null) {
         const isCouponValid =
-          cart && cart.filter((item) => item.shopId === shopId);
+          cart && cart.filter((item) => item._id === productId);
 
         if (isCouponValid.length === 0) {
-          toast.error("Coupon code is not valid for this shop");
+          toast.error("Coupon code is not valid for these products!");
           setCouponCode("");
         } else {
           const eligiblePrice = isCouponValid.reduce(
             (acc, item) => acc + item.qty * item.discountPrice,
             0
           );
-          const discountPrice = (eligiblePrice * couponCodeValue) / 100;
-          setDiscountPrice(discountPrice);
-          setCouponCodeData(res.data.couponCode);
-          setCouponCode("");
+          if(eligiblePrice >= minAmount && eligiblePrice <= maxAmount){
+	    const discountPrice = (eligiblePrice * couponCodeValue) / 100;
+            setDiscountPrice(discountPrice);
+            setCouponCodeData(res.data.couponCode);
+            setCouponCode("");
+	  }else{
+	     toast.error(`Minimum Purchase of Rs.${minAmount} & Maximum Purchase of Rs.${maxAmount} is required!`);
+             setCouponCode("");
+          }
         }
       }
       if (res.data.couponCode === null) {
@@ -99,8 +106,6 @@ const Checkout = () => {
   const totalPrice = couponCodeData
     ? (subTotalPrice + shipping - discountPercentenge).toFixed(2)
     : (subTotalPrice + shipping).toFixed(2);
-
-  console.log(discountPercentenge);
 
   return (
     <div className="w-full flex flex-col items-center py-8">

@@ -11,6 +11,7 @@ import axios from "axios";
 import { server } from "../../server";
 import { toast } from "react-toastify";
 import Loader from "../Layout/Loader";
+import RenderExpandableCell from "../Layout/RenderExpandableCell";
 
 const AllUsers = () => {
   const dispatch = useDispatch();
@@ -37,27 +38,35 @@ const AllUsers = () => {
   };
 
   const columns = [
-    { field: "id", headerName: "User ID", minWidth: 150, flex: 0.7 },
-
+    {
+     field: "id",
+     headerName: "User ID",
+     minWidth: 130,
+     flex: 0.8,
+     renderCell: params => <RenderExpandableCell {...params} />
+    },
     {
       field: "name",
       headerName: "name",
       minWidth: 130,
-      flex: 0.7,
+      flex: 0.8,
+      renderCell: params => <RenderExpandableCell {...params} />
     },
     {
       field: "email",
       headerName: "Email",
       type: "text",
       minWidth: 130,
-      flex: 0.7,
+      flex: 0.8,
+      renderCell: params => <RenderExpandableCell {...params} />
     },
     {
       field: "role",
       headerName: "User Role",
       type: "text",
       minWidth: 130,
-      flex: 0.7,
+      flex: 0.8,
+      renderCell: params => <RenderExpandableCell {...params} />
     },
 
     {
@@ -66,6 +75,7 @@ const AllUsers = () => {
       type: "text",
       minWidth: 130,
       flex: 0.8,
+      renderCell: params => <RenderExpandableCell {...params} />
     },
 
     {
@@ -111,7 +121,7 @@ const AllUsers = () => {
               <DataGrid
                 rows={row}
                 columns={columns}
-                pageSize={10}
+                pageSize={8}
                 disableSelectionOnClick
                 autoHeight
               />

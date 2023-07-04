@@ -11,13 +11,13 @@ import { toast } from "react-toastify";
 import { getAllSellers } from "../../redux/actions/sellers";
 import { Link } from "react-router-dom";
 import Loader from "../Layout/Loader";
+import RenderExpandableCell from "../Layout/RenderExpandableCell"
 
 const AllSellers = () => {
   const dispatch = useDispatch();
   const { sellers, isLoading } = useSelector((state) => state.seller);
   const [open, setOpen] = useState(false);
   const [userId, setUserId] = useState("");
-
 
   useEffect(() => {
     dispatch(getAllSellers());
@@ -34,35 +34,45 @@ const AllSellers = () => {
   };
 
   const columns = [
-    { field: "id", headerName: "Seller ID", minWidth: 150, flex: 0.7 },
+    { 
+       field: "id",
+       headerName: "Seller ID",
+       minWidth: 130,
+       flex: 0.8,
+       renderCell: params => <RenderExpandableCell {...params} />
+    },
 
     {
       field: "name",
-      headerName: "name",
+      headerName: "Name",
       minWidth: 130,
-      flex: 0.7,
+      flex: 0.8,
+      renderCell: params => <RenderExpandableCell {...params} />
     },
     {
       field: "email",
       headerName: "Email",
       type: "text",
       minWidth: 130,
-      flex: 0.7,
+      flex: 0.8,
+      renderCell: params => <RenderExpandableCell {...params} />
     },
     {
       field: "address",
       headerName: "Seller Address",
       type: "text",
       minWidth: 130,
-      flex: 0.7,
+      flex: 0.8,
+      renderCell: params => <RenderExpandableCell {...params} />
     },
 
     {
       field: "joinedAt",
-      headerName: "joinedAt",
+      headerName: "Joined At",
       type: "text",
       minWidth: 130,
       flex: 0.8,
+      renderCell: params => <RenderExpandableCell {...params} />
     },
     {
       field: "  ",
@@ -122,12 +132,12 @@ const AllSellers = () => {
         ) : (
           <div className="w-full flex justify-center pt-5">
             <div className="w-[97%]">
-              <h3 className="text-[22px] font-Poppins pb-2">All Users</h3>
+              <h3 className="text-[22px] font-Poppins pb-2">All Sellers</h3>
               <div className="w-full min-h-[45vh] bg-white rounded">
                 <DataGrid
                   rows={row}
                   columns={columns}
-                  pageSize={10}
+                  pageSize={8}
                   disableSelectionOnClick
                   autoHeight
                 />

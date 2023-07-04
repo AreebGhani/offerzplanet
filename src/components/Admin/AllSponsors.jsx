@@ -6,6 +6,7 @@ import axios from "axios";
 import { backend_url, server } from '../../server';
 import { AiOutlineDelete } from 'react-icons/ai';
 import Loader from "../Layout/Loader";
+import RenderExpandableCell from "../Layout/RenderExpandableCell";
 import { toast } from "react-toastify";
 
 const AllSponsors = () => {
@@ -39,30 +40,30 @@ const AllSponsors = () => {
         {
             field: "title",
             headerName: "Title",
-            minWidth: 150,
-            flex: 0.6,
-            align: 'left'
+            minWidth: 130,
+            flex: 0.8,
+            renderCell: params => <RenderExpandableCell {...params} />
         },
         {
             field: "description",
             headerName: "Description",
-            minWidth: 150,
-            flex: 0.6,
-            align: 'left'
+            minWidth: 130,
+            flex: 0.8,
+            renderCell: params => <RenderExpandableCell {...params} />
         },
         {
             field: "buttonText",
             headerName: "Button Text",
-            minWidth: 150,
-            flex: 0.6,
-            align: 'left'
+            minWidth: 130,
+            flex: 0.8,
+            renderCell: params => <RenderExpandableCell {...params} />
         },
         {
             field: "buttonLink",
             headerName: "Button Link",
-            minWidth: 150,
-            flex: 0.6,
-            align: 'left'
+            minWidth: 130,
+            flex: 0.8,
+            renderCell: params => <RenderExpandableCell {...params} />
         },
         {
             field: "image",
@@ -121,7 +122,7 @@ const AllSponsors = () => {
                     <DataGrid
                         rows={row}
                         columns={columns}
-                        pageSize={10}
+                        pageSize={2}
                         disableSelectionOnClick
                         autoHeight
                         rowHeight={200}

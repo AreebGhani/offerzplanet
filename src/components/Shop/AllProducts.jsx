@@ -7,6 +7,7 @@ import { Link } from "react-router-dom";
 import { getAllProductsShop } from "../../redux/actions/product";
 import { deleteProduct } from "../../redux/actions/product";
 import Loader from "../Layout/Loader";
+import RenderExpandableCell from "../Layout/RenderExpandableCell";
 
 const AllProducts = () => {
   const { products, isLoading } = useSelector((state) => state.products);
@@ -24,25 +25,34 @@ const AllProducts = () => {
   };
 
   const columns = [
-    { field: "id", headerName: "Product Id", minWidth: 150, flex: 0.7 },
+    {
+      field: "id",
+      headerName: "Product Id",
+      minWidth: 130, 
+      flex: 0.8,
+      renderCell: params => <RenderExpandableCell {...params} />
+    },
     {
       field: "name",
       headerName: "Name",
-      minWidth: 180,
-      flex: 1.4,
+      minWidth: 130,
+      flex: 0.8,
+      renderCell: params => <RenderExpandableCell {...params} />
     },
     {
       field: "price",
       headerName: "Price",
-      minWidth: 100,
-      flex: 0.6,
+      minWidth: 130,
+      flex: 0.8,
+      renderCell: params => <RenderExpandableCell {...params} />
     },
     {
       field: "Stock",
       headerName: "Stock",
       type: "number",
-      minWidth: 80,
-      flex: 0.5,
+      minWidth: 130,
+      flex: 0.8,
+      renderCell: params => <RenderExpandableCell {...params} />
     },
 
     {
@@ -50,7 +60,8 @@ const AllProducts = () => {
       headerName: "Sold out",
       type: "number",
       minWidth: 130,
-      flex: 0.6,
+      flex: 0.8,
+      renderCell: params => <RenderExpandableCell {...params} />
     },
     {
       field: "Preview",
@@ -112,7 +123,7 @@ const AllProducts = () => {
           <DataGrid
             rows={row}
             columns={columns}
-            pageSize={10}
+            pageSize={8}
             disableSelectionOnClick
             autoHeight
           />

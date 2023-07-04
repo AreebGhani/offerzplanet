@@ -2,10 +2,15 @@ import React, { useEffect } from 'react'
 import { useSelector } from 'react-redux';
 import styles from '../../styles/styles'
 import EventCard from "./EventCard";
+import Loader from "../Layout/Loader";
 
 const Events = () => {
   const {allEvents,isLoading} = useSelector((state) => state.events);  
-   
+
+   if(isLoading){
+      return <Loader/>;
+   }
+
   return (
     <div>
      {
@@ -17,9 +22,9 @@ const Events = () => {
 
       <div className="w-full grid">
          {
-          allEvents.length !== 0 && (
-            <EventCard data={allEvents && allEvents[0]} />
-          )
+          allEvents.length !== 0 && allEvents.map((data, index) => {
+            return (<EventCard key={index} data={data} />)
+	  })
          }
          <h4>{
            allEvents?.length === 0 && (

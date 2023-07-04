@@ -8,6 +8,7 @@ import { backend_url } from "../../../server";
 const Categories = () => {
   const navigate = useNavigate();
   const { categories } = useSelector((state) => state.categories);
+ 
   return (
     <>
       <div className={`${styles.section} hidden sm:block`}>

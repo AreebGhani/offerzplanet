@@ -18,6 +18,7 @@ const UserOrderDetails = () => {
   const [comment, setComment] = useState("");
   const [selectedItem, setSelectedItem] = useState(null);
   const [rating, setRating] = useState(1);
+  const [loading, setLoading] = useState(false);
 
   const { id } = useParams();
 
@@ -28,8 +29,12 @@ const UserOrderDetails = () => {
   const data = orders && orders.find((item) => item._id === id);
 
   const reviewHandler = async (e) => {
+    setLoading(true);
     await axios
       .put(
+        selectedItem.Finish_Date !== null && selectedItem.status === "Running" ? 
+        `${server}/event/create-new-review`
+        :
         `${server}/product/create-new-review`,
         {
           user,
@@ -41,6 +46,7 @@ const UserOrderDetails = () => {
         { withCredentials: true }
       )
       .then((res) => {
+        setLoading(false);
         toast.success(res.data.message);
         dispatch(getAllOrdersOfUser(user._id));
         setComment("");
@@ -48,6 +54,7 @@ const UserOrderDetails = () => {
         setOpen(false);
       })
       .catch((error) => {
+        setLoading(false);
         toast.error(error);
       });
   };
@@ -191,7 +198,7 @@ const UserOrderDetails = () => {
               className={`${styles.button} text-white text-[20px] ml-3`}
               onClick={rating > 1 ? reviewHandler : null}
             >
-              Submit
+              {loading ? "Loading..." : "Submit"}
             </div>
           </div>
         </div>
@@ -233,9 +240,6 @@ const UserOrderDetails = () => {
         </div>
       </div>
       <br />
-      <Link to="/">
-        <div className={`${styles.button} text-white`}>Send Message</div>
-      </Link>
       <br />
       <br />
     </div>

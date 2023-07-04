@@ -12,6 +12,8 @@ import { Button } from "@material-ui/core";
 import { Link } from "react-router-dom";
 import { MdTrackChanges } from "react-icons/md";
 import { RxCross1 } from "react-icons/rx";
+import Loader from "../Layout/Loader";
+import RenderExpandableCell from "../Layout/RenderExpandableCell";
 import {
   deleteUserAddress,
   loadUser,
@@ -65,8 +67,8 @@ const ProfileContent = ({ active }) => {
         withCredentials: true,
       })
       .then((response) => {
-         dispatch(loadUser());
-         toast.success("avatar updated successfully!");
+        dispatch(loadUser());
+        toast.success("avatar updated successfully!");
       })
       .catch((error) => {
         toast.error(error);
@@ -149,7 +151,7 @@ const ProfileContent = ({ active }) => {
                 </div>
               </div>
               <input
-                className={`w-[250px] h-[40px] border border-[#3a24db] text-center text-[#3a24db] rounded-[3px] mt-8 cursor-pointer`}
+                className={`w-[250px] h-[40px] border border-[#ec1c2c] border-2 text-center text-[#ec1c2c] mt-8 cursor-pointer font-medium`}
                 required
                 value="Update"
                 type="submit"
@@ -199,7 +201,7 @@ const ProfileContent = ({ active }) => {
 
 const AllOrders = () => {
   const { user } = useSelector((state) => state.user);
-  const { orders } = useSelector((state) => state.order);
+  const { orders, isLoading } = useSelector((state) => state.order);
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -207,17 +209,25 @@ const AllOrders = () => {
   }, []);
 
   const columns = [
-    { field: "id", headerName: "Order ID", minWidth: 150, flex: 0.7 },
-
+    {
+      field: "id",
+      headerName: "Order ID",
+      minWidth: 130,
+      flex: 0.8,
+      renderCell: params => <RenderExpandableCell {...params} />
+    },
     {
       field: "status",
       headerName: "Status",
       minWidth: 130,
-      flex: 0.7,
+      flex: 0.8,
+      renderCell: params => <RenderExpandableCell {...params} />,
       cellClassName: (params) => {
-        return params.getValue(params.id, "status") === "Delivered"
+        return params.getValue(params.id, "status") === "Delivered" || params.getValue(params.id, "status") === "Refund Success"
           ? "greenColor"
-          : "redColor";
+          : params.getValue(params.id, "status") === "Refund Denied"
+            ? "redColor"
+            : "orangeColor";
       },
     },
     {
@@ -225,7 +235,8 @@ const AllOrders = () => {
       headerName: "Items Qty",
       type: "number",
       minWidth: 130,
-      flex: 0.7,
+      flex: 0.8,
+      renderCell: params => <RenderExpandableCell {...params} />
     },
 
     {
@@ -234,6 +245,7 @@ const AllOrders = () => {
       type: "number",
       minWidth: 130,
       flex: 0.8,
+      renderCell: params => <RenderExpandableCell {...params} />
     },
 
     {
@@ -264,17 +276,21 @@ const AllOrders = () => {
       row.push({
         id: item._id,
         itemsQty: item.cart.length,
-        total: "US$ " + item.totalPrice,
+        total: "Rs." + item.totalPrice,
         status: item.status,
       });
     });
+
+ if(isLoading){
+   return <Loader/>
+ }
 
   return (
     <div className="pl-8 pt-1">
       <DataGrid
         rows={row}
         columns={columns}
-        pageSize={10}
+        pageSize={8}
         disableSelectionOnClick
         autoHeight
       />
@@ -284,7 +300,7 @@ const AllOrders = () => {
 
 const AllRefundOrders = () => {
   const { user } = useSelector((state) => state.user);
-  const { orders } = useSelector((state) => state.order);
+  const { orders, isLoading } = useSelector((state) => state.order);
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -294,17 +310,25 @@ const AllRefundOrders = () => {
   const eligibleOrders = orders && orders.filter((item) => item.status === "Processing refund");
 
   const columns = [
-    { field: "id", headerName: "Order ID", minWidth: 150, flex: 0.7 },
-
+    {
+      field: "id",
+      headerName: "Order ID",
+      minWidth: 130,
+      flex: 0.8,
+      renderCell: params => <RenderExpandableCell {...params} />
+    },
     {
       field: "status",
       headerName: "Status",
       minWidth: 130,
-      flex: 0.7,
+      flex: 0.8,
+      renderCell: params => <RenderExpandableCell {...params} />,
       cellClassName: (params) => {
-        return params.getValue(params.id, "status") === "Delivered"
+        return params.getValue(params.id, "status") === "Delivered" || params.getValue(params.id, "status") === "Refund Success"
           ? "greenColor"
-          : "redColor";
+          : params.getValue(params.id, "status") === "Refund Denied"
+            ? "redColor"
+            : "orangeColor";
       },
     },
     {
@@ -312,7 +336,8 @@ const AllRefundOrders = () => {
       headerName: "Items Qty",
       type: "number",
       minWidth: 130,
-      flex: 0.7,
+      flex: 0.8,
+      renderCell: params => <RenderExpandableCell {...params} />
     },
 
     {
@@ -321,6 +346,7 @@ const AllRefundOrders = () => {
       type: "number",
       minWidth: 130,
       flex: 0.8,
+      renderCell: params => <RenderExpandableCell {...params} />
     },
 
     {
@@ -347,21 +373,25 @@ const AllRefundOrders = () => {
   const row = [];
 
   eligibleOrders &&
-   eligibleOrders.forEach((item) => {
+    eligibleOrders.forEach((item) => {
       row.push({
         id: item._id,
         itemsQty: item.cart.length,
-        total: "US$ " + item.totalPrice,
+        total: "Rs." + item.totalPrice,
         status: item.status,
       });
     });
+
+ if(isLoading){
+   return <Loader/>
+ }
 
   return (
     <div className="pl-8 pt-1">
       <DataGrid
         rows={row}
         columns={columns}
-        pageSize={10}
+        pageSize={8}
         autoHeight
         disableSelectionOnClick
       />
@@ -371,7 +401,7 @@ const AllRefundOrders = () => {
 
 const TrackOrder = () => {
   const { user } = useSelector((state) => state.user);
-  const { orders } = useSelector((state) => state.order);
+  const { orders, isLoading } = useSelector((state) => state.order);
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -379,17 +409,25 @@ const TrackOrder = () => {
   }, []);
 
   const columns = [
-    { field: "id", headerName: "Order ID", minWidth: 150, flex: 0.7 },
-
+    {
+      field: "id",
+      headerName: "Order ID",
+      minWidth: 130,
+      flex: 0.8,
+      renderCell: params => <RenderExpandableCell {...params} />
+   },
     {
       field: "status",
       headerName: "Status",
       minWidth: 130,
-      flex: 0.7,
+      flex: 0.8,
+      renderCell: params => <RenderExpandableCell {...params} />,
       cellClassName: (params) => {
-        return params.getValue(params.id, "status") === "Delivered"
+        return params.getValue(params.id, "status") === "Delivered" || params.getValue(params.id, "status") === "Refund Success"
           ? "greenColor"
-          : "redColor";
+          : params.getValue(params.id, "status") === "Refund Denied"
+            ? "redColor"
+            : "orangeColor";
       },
     },
     {
@@ -397,7 +435,8 @@ const TrackOrder = () => {
       headerName: "Items Qty",
       type: "number",
       minWidth: 130,
-      flex: 0.7,
+      flex: 0.8,
+      renderCell: params => <RenderExpandableCell {...params} />
     },
 
     {
@@ -406,6 +445,7 @@ const TrackOrder = () => {
       type: "number",
       minWidth: 130,
       flex: 0.8,
+      renderCell: params => <RenderExpandableCell {...params} />
     },
 
     {
@@ -436,17 +476,21 @@ const TrackOrder = () => {
       row.push({
         id: item._id,
         itemsQty: item.cart.length,
-        total: "US$ " + item.totalPrice,
+        total: "Rs." + item.totalPrice,
         status: item.status,
       });
     });
+
+  if(isLoading){
+   return <Loader/>
+  }
 
   return (
     <div className="pl-8 pt-1">
       <DataGrid
         rows={row}
         columns={columns}
-        pageSize={10}
+        pageSize={8}
         disableSelectionOnClick
         autoHeight
       />
@@ -519,7 +563,7 @@ const ChangePassword = () => {
               onChange={(e) => setConfirmPassword(e.target.value)}
             />
             <input
-              className={`w-[95%] h-[40px] border border-[#3a24db] text-center text-[#3a24db] rounded-[3px] mt-8 cursor-pointer`}
+              className={`w-[95%] h-[40px] border border-[#ec1c2c] border-2 text-center text-[#ec1c2c] mt-8 cursor-pointer font-medium`}
               required
               value="Update"
               type="submit"

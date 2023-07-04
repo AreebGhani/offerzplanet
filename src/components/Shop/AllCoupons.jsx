@@ -7,6 +7,8 @@ import { RxCross1 } from "react-icons/rx";
 import { useDispatch, useSelector } from "react-redux";
 import styles from "../../styles/styles";
 import Loader from "../Layout/Loader";
+import RenderExpandableCell from "../Layout/RenderExpandableCell";
+import { getAllProductsShop } from "../../redux/actions/product";
 import { server } from "../../server";
 import { toast } from "react-toastify";
 
@@ -17,12 +19,16 @@ const AllCoupons = () => {
   const [coupouns,setCoupouns] = useState([]);
   const [minAmount, setMinAmout] = useState(null);
   const [maxAmount, setMaxAmount] = useState(null);
-  const [selectedProducts, setSelectedProducts] = useState(null);
+  const [selectedProduct, setSelectedProduct] = useState(null);
   const [value, setValue] = useState(null);
   const { seller } = useSelector((state) => state.seller);
   const { products } = useSelector((state) => state.products);
 
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(getAllProductsShop(seller._id));
+  }, [dispatch]);
 
   useEffect(() => {
     setIsLoading(true);
@@ -56,7 +62,7 @@ const AllCoupons = () => {
           name,
           minAmount,
           maxAmount,
-          selectedProducts,
+          selectedProduct,
           value,
           shopId: seller._id,
         },
@@ -68,23 +74,39 @@ const AllCoupons = () => {
        window.location.reload();
       })
       .catch((error) => {
+	setOpen(false)
         toast.error(error.response.data.message);
       });
   };
 
   const columns = [
-    { field: "id", headerName: "Id", minWidth: 150, flex: 0.7 },
+    {
+      field: "id",
+      headerName: "Id",
+      minWidth: 130,
+      flex: 0.8,
+      renderCell: params => <RenderExpandableCell {...params} />
+   },
     {
       field: "name",
       headerName: "Coupon Code",
-      minWidth: 180,
-      flex: 1.4,
+      minWidth: 130,
+      flex: 0.8,
+      renderCell: params => <RenderExpandableCell {...params} />
     },
     {
       field: "price",
       headerName: "Value",
-      minWidth: 100,
-      flex: 0.6,
+      minWidth: 130,
+      flex: 0.8,
+      renderCell: params => <RenderExpandableCell {...params} />
+    },
+    {
+      field: "product",
+      headerName: "Selected Product",
+      minWidth: 130,
+      flex: 0.8,
+      renderCell: params => <RenderExpandableCell {...params} />
     },
     {
       field: "Delete",
@@ -107,13 +129,18 @@ const AllCoupons = () => {
 
   const row = [];
 
+  function getSelectedProduct(item){
+     let selectedProduct = products.filter(p => p._id === item.selectedProduct);
+     return selectedProduct[0].name;
+  }
+
   coupouns &&
   coupouns.forEach((item) => {
       row.push({
         id: item._id,
         name: item.name,
-        price: item.value + " %",
-        sold: 10,
+        price: item.value + "%",
+        product: getSelectedProduct(item),
       });
     });
 
@@ -134,7 +161,7 @@ const AllCoupons = () => {
           <DataGrid
             rows={row}
             columns={columns}
-            pageSize={10}
+            pageSize={8}
             disableSelectionOnClick
             autoHeight
           />
@@ -181,7 +208,7 @@ const AllCoupons = () => {
                       required
                       className="mt-2 appearance-none block w-full px-3 h-[35px] border border-gray-300 rounded-[3px] placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                       onChange={(e) => setValue(e.target.value)}
-                      placeholder="Enter your coupon code value..."
+                      placeholder="Enter your coupon code percentage value..."
                     />
                   </div>
                   <br />
@@ -189,7 +216,7 @@ const AllCoupons = () => {
                     <label className="pb-2">Min Amount</label>
                     <input
                       type="number"
-                      name="value"
+                      name="minAmount"
                       value={minAmount}
                       className="mt-2 appearance-none block w-full px-3 h-[35px] border border-gray-300 rounded-[3px] placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                       onChange={(e) => setMinAmout(e.target.value)}
@@ -201,7 +228,7 @@ const AllCoupons = () => {
                     <label className="pb-2">Max Amount</label>
                     <input
                       type="number"
-                      name="value"
+                      name="maxAmount"
                       value={maxAmount}
                       className="mt-2 appearance-none block w-full px-3 h-[35px] border border-gray-300 rounded-[3px] placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                       onChange={(e) => setMaxAmount(e.target.value)}
@@ -213,15 +240,16 @@ const AllCoupons = () => {
                     <label className="pb-2">Selected Product</label>
                     <select
                       className="w-full mt-2 border h-[35px] rounded-[5px]"
-                      value={selectedProducts}
-                      onChange={(e) => setSelectedProducts(e.target.value)}
+		      required
+                      value={selectedProduct}
+                      onChange={(e) => setSelectedProduct(e.target.value)}
                     >
                       <option value="Choose your selected products">
                         Choose a selected product
                       </option>
                       {products &&
                         products.map((i) => (
-                          <option value={i.name} key={i.name}>
+                          <option value={i._id} key={i.name}>
                             {i.name}
                           </option>
                         ))}

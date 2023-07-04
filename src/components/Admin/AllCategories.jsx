@@ -95,7 +95,7 @@ const AllCategories = () => {
           <DataGrid
             rows={row}
             columns={columns}
-            pageSize={10}
+            pageSize={2}
             disableSelectionOnClick
             autoHeight
             rowHeight={200}

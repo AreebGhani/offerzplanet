@@ -21,7 +21,7 @@ import { addTocart } from "../../../redux/actions/cart";
 import { toast } from "react-toastify";
 import Ratings from "../../Products/Ratings";
 
-const ProductCard = ({ data,isEvent }) => {
+const ProductCard = ({ data, isEvent }) => {
   const { wishlist } = useSelector((state) => state.wishlist);
   const { cart } = useSelector((state) => state.cart);
   const [click, setClick] = useState(false);
@@ -71,6 +71,7 @@ const ProductCard = ({ data,isEvent }) => {
             alt=""
             className="w-full h-[170px] object-contain border-none"
           />
+	  {data.stock < 1 && <span className="sold_out">Out Of Stock</span>}
         </Link>
         <Link to={`/shop/preview/${data?.shop._id}`}>
           <h5 className={`${styles.shop_name}`}>{data.shop.name}</h5>

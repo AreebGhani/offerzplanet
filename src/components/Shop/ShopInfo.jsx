@@ -28,10 +28,13 @@ const ShopInfo = ({ isOwner }) => {
   
 
   const logoutHandler = async () => {
+    let e = window.confirm("Do you want to logout?");
+    if(e){
     axios.get(`${server}/shop/logout`,{
       withCredentials: true,
     });
     window.location.reload();
+    }
   };
 
   const totalReviewsLength =
@@ -57,8 +60,8 @@ const ShopInfo = ({ isOwner }) => {
             className="w-[150px] h-[150px] object-cover rounded-full"
           />
         </div>
-        <h3 className="text-center py-2 text-[20px]">{data.name}</h3>
-        <p className="text-[16px] text-[#000000a6] p-[10px] flex items-center">
+        <h3 className="text-center capitalize py-2 text-[20px]">{data.name}</h3>
+        <p className="text-[16px] capitalize text-[#000000a6] p-[10px] flex items-center">
           {data.description}
         </p>
       </div>

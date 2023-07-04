@@ -1,6 +1,6 @@
 import React from "react";
+import { BsShopWindow } from "react-icons/bs";
 import { FiShoppingBag } from "react-icons/fi";
-import { GrWorkshop } from "react-icons/gr";
 import { RxDashboard } from "react-icons/rx";
 import { CiMoneyBill } from "react-icons/ci";
 import { Link } from "react-router-dom";
@@ -48,7 +48,7 @@ const AdminSideBar = ({ active }) => {
 
       <div className="w-full flex items-center p-4">
         <Link to="/admin-sellers" className="w-full flex items-center">
-          <GrWorkshop
+          <BsShopWindow
             size={30}
             color={`${active === 3 ? "crimson" : "#555"}`}
           />

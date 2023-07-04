@@ -6,10 +6,13 @@ import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { addTocart } from "../../redux/actions/cart";
 import { toast } from "react-toastify";
+import { Timer } from "./Timer";
 
-const EventCard = ({ active, data }) => {
+const EventCard = ({ data }) => {
   const { cart } = useSelector((state) => state.cart);
   const dispatch = useDispatch();
+
+ const { length } = Timer({data});
 
   const addToCartHandler = (data) => {
     const isItemExists = cart && cart.find((i) => i._id === data._id);
@@ -27,12 +30,10 @@ const EventCard = ({ active, data }) => {
   }
   return (
     <div
-      className={`w-full block bg-white rounded-lg ${
-        active ? "unset" : "mb-12"
-      } lg:flex p-2`}
+      className={`w-full block p-5 bg-white mb-12 rounded-lg lg:flex p-2`}
     >
-      <div className="w-full lg:-w[50%] m-auto">
-        <img src={`${backend_url}${data.images[0]}`} alt="" />
+      <div className="w-full lg:-w[50%] m-auto flex justify-center items-center">
+        <img src={`${backend_url}${data.images[0]}`} className="h-[50vh]" alt="" />
       </div>
       <div className="w-full lg:[w-50%] flex flex-col justify-center">
         <h2 className={`${styles.productTitle}`}>{data.name}</h2>
@@ -56,7 +57,9 @@ const EventCard = ({ active, data }) => {
           <Link to={`/product/${data._id}?isEvent=true`}>
             <div className={`${styles.button} text-[#fff]`}>See Details</div>
           </Link>
-          <div className={`${styles.button} text-[#fff] ml-5`} onClick={() => addToCartHandler(data)}>Add to cart</div>
+          <div className={`${styles.button} text-[#fff] ml-5 ${(data.stock < 1 || !length) && "!cursor-not-allowed !bg-[darkgray]"}`} onClick={() => (data.stock > 0 && length) && addToCartHandler(data)}>
+	      {(data.stock < 1 || !length) ? "Out Of Stock" : "Add to cart"}
+	  </div>
         </div>
       </div>
     </div>

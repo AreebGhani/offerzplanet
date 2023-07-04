@@ -1,6 +1,7 @@
 import axios from "axios";
 import React, { useRef, useState } from "react";
 import { useEffect } from "react";
+import Loader from "../Layout/Loader";
 import { backend_url, server } from "../../server";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -23,6 +24,7 @@ const DashboardMessages = () => {
   const [newMessage, setNewMessage] = useState("");
   const [onlineUsers, setOnlineUsers] = useState([]);
   const [activeStatus, setActiveStatus] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [images, setImages] = useState();
   const [open, setOpen] = useState(false);
   const scrollRef = useRef(null);
@@ -54,8 +56,9 @@ const DashboardMessages = () => {
         );
 
         setConversations(resonse.data.conversations);
+        setLoading(false);
       } catch (error) {
-        // console.log(error);
+        setLoading(false);
       }
     };
     getConversation();
@@ -205,7 +208,13 @@ const DashboardMessages = () => {
     scrollRef.current?.scrollIntoView({ beahaviour: "smooth" });
   }, [messages]);
 
-  return (
+  if(loading){
+    return(
+       <Loader/>
+    )
+  }
+  
+   return (
     <div className="w-[90%] bg-white m-5 h-[85vh] overflow-y-scroll rounded">
       {!open && (
         <>
@@ -313,7 +322,7 @@ const MessageList = ({
         <p className="text-[16px] text-[#000c]">
           {data?.lastMessageId !== user?._id
             ? "You:"
-            : user?.name.split(" ")[0] + ": "}{" "}
+            : user?.name?.split(" ")[0] + ": "}{" "}
           {data?.lastMessage}
         </p>
       </div>
@@ -436,7 +445,7 @@ const SellerInbox = ({
           <label htmlFor="send">
             <AiOutlineSend
               size={20}
-              className="absolute right-4 top-5 cursor-pointer"
+              className="absolute right-7 top-7 cursor-pointer"
             />
           </label>
         </div>

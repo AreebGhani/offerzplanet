@@ -16,10 +16,11 @@ const Hero = () => {
       setSponsors(res.data.sponsors);
     })
   }, []);
+
   return (
     <Swiper
       spaceBetween={5}
-      slidesPerView={sponsors ? sponsors.length : 0}
+      slidesPerView={sponsors ? 1 : 0}
       modules={[Autoplay]}
       autoplay={{
         delay: 3000,
@@ -32,10 +33,11 @@ const Hero = () => {
           return (
             <SwiperSlide key={sponsor._id}>
               <div
-                className={`relative min-h-[70vh] 800px:min-h-[80vh] w-full bg-no-repeat ${styles.noramlFlex}`}
+                className={`${styles.noramlFlex} relative min-h-[70vh] 800px:min-h-[80vh] w-full bg-no-repeat`}
                 style={{
                   backgroundImage:
                     `url(${backend_url}${sponsor.image})`,
+		  backgroundSize: "100% 100%",
                 }}
               >
                 <div className={`${styles.section} w-[90%] 800px:w-[60%]`}>
@@ -44,14 +46,14 @@ const Hero = () => {
                   >
                     {sponsor.title}
                   </h1>
-                  <p className="pt-5 w-4/5 text-[16px] font-[Poppins] font-[400] text-[#000000ba]">
+                  <p className="pt-5 w-4/5 text-[16px] font-[Poppins] font-[400] text-[#000000ba] capitalize">
                     {sponsor?.description}
                   </p>
                   {
                     sponsor.buttonText &&
                     <Link to={sponsor?.buttonLink} className="inline-block">
                       <div className={`${styles.button} mt-5`}>
-                        <span className="text-[#fff] font-[Poppins] text-[18px]">
+                        <span className="text-[#fff] font-[Poppins] capitalize text-[18px]">
                           {sponsor.buttonText}
                         </span>
                       </div>

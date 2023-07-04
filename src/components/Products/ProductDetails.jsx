@@ -159,25 +159,28 @@ const ProductDetails = ({ data }) => {
                     {data.originalPrice ? data.originalPrice : null}
                   </h3>
                 </div>
-
                 <div className="flex items-center mt-12 justify-between pr-3">
-                  <div>
-                    <button
-                      className="bg-gradient-to-r from-teal-400 to-teal-500 text-white font-bold rounded-l px-4 py-2 shadow-lg hover:opacity-75 transition duration-300 ease-in-out"
-                      onClick={decrementCount}
-                    >
-                      -
-                    </button>
-                    <span className="bg-gray-200 text-gray-800 font-medium px-4 py-[11px]">
-                      {count}
-                    </span>
-                    <button
-                      className="bg-gradient-to-r from-teal-400 to-teal-500 text-white font-bold rounded-l px-4 py-2 shadow-lg hover:opacity-75 transition duration-300 ease-in-out"
-                      onClick={incrementCount}
-                    >
-                      +
-                    </button>
-                  </div>
+                  {
+                    data.stock > 0 ?
+                      <div>
+                        <button
+                          className="bg-gradient-to-r from-teal-400 to-teal-500 text-white font-bold rounded-l px-4 py-2 shadow-lg hover:opacity-75 transition duration-300 ease-in-out"
+                          onClick={decrementCount}
+                        >
+                          -
+                        </button>
+                        <span className="bg-gray-200 text-gray-800 font-medium px-4 py-[11px]">
+                          {count}
+                        </span>
+                        <button
+                          className="bg-gradient-to-r from-teal-400 to-teal-500 text-white font-bold rounded-l px-4 py-2 shadow-lg hover:opacity-75 transition duration-300 ease-in-out"
+                          onClick={incrementCount}
+                        >
+                          +
+                        </button>
+                      </div>
+                      : "Sorry product is not available!"
+                  }
                   <div>
                     {click ? (
                       <AiFillHeart
@@ -199,11 +202,11 @@ const ProductDetails = ({ data }) => {
                   </div>
                 </div>
                 <div
-                  className={`${styles.button} !mt-6 !rounded !h-11 flex items-center`}
-                  onClick={() => addToCartHandler(data._id)}
+                  className={`${styles.button} !mt-6 !rounded !h-11 flex items-center ${data.stock < 1 && "!cursor-not-allowed !bg-[darkgray]"}`}           
+                  onClick={() => data.stock > 0 && addToCartHandler(data._id)}
                 >
                   <span className="text-white flex items-center">
-                    Add to cart <AiOutlineShoppingCart className="ml-1" />
+                    {data.stock > 0 ? (<>Add to Cart<AiOutlineShoppingCart className="ml-1" /></>) : "Out Of Stock"}
                   </span>
                 </div>
                 <div className="flex items-center pt-8">
@@ -322,7 +325,7 @@ const ProductDetailsInfo = ({
                 <div className="pl-2 ">
                   <div className="w-full flex items-center">
                     <h1 className="font-[500] mr-3">{item.user.name}</h1>
-                    <Ratings rating={data?.ratings} />
+                    <Ratings rating={item?.rating} />
                   </div>
                   <p>{item.comment}</p>
                 </div>
@@ -340,21 +343,21 @@ const ProductDetailsInfo = ({
       {active === 3 && (
         <div className="w-full block 800px:flex p-5">
           <div className="w-full 800px:w-[50%]">
-              <div className="flex items-center">
-            <Link to={`/shop/preview/${data.shop._id}`}>
+            <div className="flex items-center">
+              <Link to={`/shop/preview/${data.shop._id}`}>
                 <img
                   src={`${backend_url}${data?.shop?.avatar}`}
                   className="w-[50px] h-[50px] rounded-full"
                   alt=""
                 />
-            </Link>
-                <div className="pl-3">
-                  <h3 className={`${styles.shop_name}`}>{data.shop.name}</h3>
-                  <h5 className="pb-2 text-[15px]">
-                    ({averageRating}/5) Ratings
-                  </h5>
-                </div>
+              </Link>
+              <div className="pl-3">
+                <h3 className={`${styles.shop_name}`}>{data.shop.name}</h3>
+                <h5 className="pb-2 text-[15px]">
+                  ({averageRating}/5) Ratings
+                </h5>
               </div>
+            </div>
             <p className="pt-2">{data.shop.description}</p>
           </div>
           <div className="w-full 800px:w-[50%] mt-5 800px:mt-0 800px:flex flex-col items-end">

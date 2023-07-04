@@ -8,6 +8,7 @@ import { Button } from "@material-ui/core";
 import { useDispatch, useSelector } from "react-redux";
 import { getAllOrdersOfAdmin } from "../../redux/actions/order";
 import Loader from "../Layout/Loader";
+import RenderExpandableCell from "../Layout/RenderExpandableCell";
 import { getAllSellers } from "../../redux/actions/sellers";
 
 const AdminDashboardMain = () => {
@@ -27,17 +28,25 @@ const AdminDashboardMain = () => {
    const adminBalance = adminEarning?.toFixed(2);
 
   const columns = [
-    { field: "id", headerName: "Order ID", minWidth: 150, flex: 0.7 },
-
+    { 
+      field: "id",
+      headerName: "Order ID",
+      minWidth: 130,
+      flex: 0.8,
+      renderCell: params => <RenderExpandableCell {...params} />
+    },
     {
       field: "status",
       headerName: "Status",
       minWidth: 130,
-      flex: 0.7,
+      flex: 0.8,
+      renderCell: params => <RenderExpandableCell {...params} />,
       cellClassName: (params) => {
-        return params.getValue(params.id, "status") === "Delivered"
+        return params.getValue(params.id, "status") === "Delivered" || params.getValue(params.id, "status") === "Refund Success"
           ? "greenColor"
-          : "redColor";
+          : params.getValue(params.id, "status") === "Refund Denied"
+            ? "redColor"
+            : "orangeColor";
       },
     },
     {
@@ -45,7 +54,8 @@ const AdminDashboardMain = () => {
       headerName: "Items Qty",
       type: "number",
       minWidth: 130,
-      flex: 0.7,
+      flex: 0.8,
+      renderCell: params => <RenderExpandableCell {...params} />
     },
 
     {
@@ -54,6 +64,7 @@ const AdminDashboardMain = () => {
       type: "number",
       minWidth: 130,
       flex: 0.8,
+      renderCell: params => <RenderExpandableCell {...params} />
     },
     {
       field: "createdAt",
@@ -61,6 +72,7 @@ const AdminDashboardMain = () => {
       type: "number",
       minWidth: 130,
       flex: 0.8,
+      renderCell: params => <RenderExpandableCell {...params} />
     },
   ];
 
@@ -70,7 +82,7 @@ const AdminDashboardMain = () => {
       row.push({
         id: item._id,
         itemsQty: item?.cart?.reduce((acc, item) => acc + item.qty, 0),
-        total: item?.totalPrice + " $",
+        total: "Rs." + item?.totalPrice,
         status: item?.status,
         createdAt: item?.createdAt.slice(0,10),
       });
@@ -98,7 +110,7 @@ const AdminDashboardMain = () => {
                 Total Earning
               </h3>
             </div>
-            <h5 className="pt-2 pl-[36px] text-[22px] font-[500]">$ {adminBalance}</h5>
+            <h5 className="pt-2 pl-[36px] text-[22px] font-[500]">Rs.{adminBalance}</h5>
           </div>
   
           <div className="w-full mb-4 800px:w-[30%] min-h-[20vh] bg-white shadow rounded px-2 py-5">
@@ -142,7 +154,7 @@ const AdminDashboardMain = () => {
           <DataGrid
             rows={row}
             columns={columns}
-            pageSize={4}
+            pageSize={3}
             disableSelectionOnClick
             autoHeight
           />

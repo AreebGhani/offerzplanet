@@ -22,7 +22,6 @@ const ProductsPage = () => {
       allProducts && allProducts.filter((i) => i.category === categoryData);
       setData(d);
     }
-    //    window.scrollTo(0,0);
   }, [allProducts]);
 
   return (
@@ -41,7 +40,7 @@ const ProductsPage = () => {
         </div>
         {data && data.length === 0 ? (
           <h1 className="text-center w-full pb-[100px] text-[20px]">
-            No products Found!
+            No Product Found!
           </h1>
         ) : null}
       </div>

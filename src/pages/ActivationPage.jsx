@@ -1,7 +1,7 @@
 import axios from "axios";
 import React, { useEffect } from "react";
 import { useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { server } from "../server";
 
 const ActivationPage = () => {
@@ -32,15 +32,21 @@ const ActivationPage = () => {
         width: "100%",
         height: "100vh",
         display: "flex",
+        flexDirection: "column",
         justifyContent: "center",
         alignItems: "center",
       }}
     >
       {error ? (
-        <p>Your token is expired!</p>
+	<p>Your token is expired!</p>
       ) : (
         <p>Your account has been created suceessfully!</p>
       )}
+<Link to="/login"
+                className="mt-10 flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700"
+              >
+                Sign in
+              </Link>
     </div>
   );
 };

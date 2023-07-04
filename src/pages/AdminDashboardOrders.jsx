@@ -1,9 +1,11 @@
 import React, { useEffect } from "react";
 import AdminHeader from "../components/Layout/AdminHeader";
 import AdminSideBar from "../components/Admin/Layout/AdminSideBar";
+import Loader from "../components/Layout/Loader";
 import { DataGrid } from "@material-ui/data-grid";
 import { useDispatch, useSelector } from "react-redux";
 import { getAllOrdersOfAdmin } from "../redux/actions/order";
+import RenderExpandableCell from "../components/Layout/RenderExpandableCell";
 
 const AdminDashboardOrders = () => {
   const dispatch = useDispatch();
@@ -17,17 +19,25 @@ const AdminDashboardOrders = () => {
   }, []);
 
   const columns = [
-    { field: "id", headerName: "Order ID", minWidth: 150, flex: 0.7 },
-
+    {
+      field: "id",
+      headerName: "Order ID",
+      minWidth: 130, 
+      flex: 0.8,
+      renderCell: params => <RenderExpandableCell {...params} />
+    },
     {
       field: "status",
       headerName: "Status",
       minWidth: 130,
-      flex: 0.7,
+      flex: 0.8,
+      renderCell: params => <RenderExpandableCell {...params} />,
       cellClassName: (params) => {
-        return params.getValue(params.id, "status") === "Delivered"
+        return params.getValue(params.id, "status") === "Delivered" || params.getValue(params.id, "status") === "Refund Success"
           ? "greenColor"
-          : "redColor";
+          : params.getValue(params.id, "status") === "Refund Denied"
+            ? "redColor"
+            : "orangeColor";
       },
     },
     {
@@ -35,7 +45,8 @@ const AdminDashboardOrders = () => {
       headerName: "Items Qty",
       type: "number",
       minWidth: 130,
-      flex: 0.7,
+      flex: 0.8,
+      renderCell: params => <RenderExpandableCell {...params} />
     },
 
     {
@@ -44,6 +55,7 @@ const AdminDashboardOrders = () => {
       type: "number",
       minWidth: 130,
       flex: 0.8,
+      renderCell: params => <RenderExpandableCell {...params} />
     },
     {
         field: "createdAt",
@@ -51,6 +63,7 @@ const AdminDashboardOrders = () => {
         type: "number",
         minWidth: 130,
         flex: 0.8,
+        renderCell: params => <RenderExpandableCell {...params} />
       },
   ];
 
@@ -60,11 +73,12 @@ const AdminDashboardOrders = () => {
       row.push({
         id: item._id,
         itemsQty: item?.cart?.reduce((acc, item) => acc + item.qty, 0),
-        total: item?.totalPrice + " $",
+        total: "Rs." + item?.totalPrice,
         status: item?.status,
         createdAt: item?.createdAt.slice(0,10),
       });
     });
+
   return (
     <div>
       <AdminHeader />
@@ -73,18 +87,20 @@ const AdminDashboardOrders = () => {
           <div className="w-[80px] 800px:w-[330px]">
             <AdminSideBar active={2} />
           </div>
-
+	  {adminOrderLoading ? <Loader/>
+           :
           <div className="w-full min-h-[45vh] pt-5 rounded flex justify-center">
             <div className="w-[97%] flex justify-center">
               <DataGrid
                 rows={row}
                 columns={columns}
-                pageSize={4}
+                pageSize={8}
                 disableSelectionOnClick
                 autoHeight
               />
             </div>
           </div>
+         }
         </div>
       </div>
     </div>

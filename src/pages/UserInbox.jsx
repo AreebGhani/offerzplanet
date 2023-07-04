@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import Header from "../components/Layout/Header";
+import Loader from "../components/Layout/Loader";
 import { useSelector } from "react-redux";
 import socketIO from "socket.io-client";
 import { format } from "timeago.js";
@@ -24,6 +25,7 @@ const UserInbox = () => {
   const [images, setImages] = useState();
   const [activeStatus, setActiveStatus] = useState(false);
   const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
   const scrollRef = useRef(null);
 
   useEffect(() => {
@@ -51,9 +53,10 @@ const UserInbox = () => {
             withCredentials: true,
           }
         );
-
         setConversations(resonse.data.conversations);
+	setLoading(false);
       } catch (error) {
+        setLoading(false);
         // console.log(error);
       }
     };
@@ -204,12 +207,12 @@ const UserInbox = () => {
 
   return (
     <div className="w-full">
-      {!open && (
+    {loading ? <Loader/> 
+     :
+      !open && (
         <>
           <Header />
-          <h1 className="text-center text-[30px] py-3 font-Poppins">
-            All Messages
-          </h1>
+            {conversations && conversations.length === 0 ? <p className="mt-20 text-center w-full pb-[100px] text-[20px]">No Message Yet!</p> : <h1 className="text-center text-[30px] py-3 font-Poppins">All Messages</h1>}
           {/* All messages list */}
           {conversations &&
             conversations.map((item, index) => (
@@ -306,7 +309,7 @@ const MessageList = ({
         )}
       </div>
       <div className="pl-3">
-        <h1 className="text-[18px]">{user?.name}</h1>
+        <h1 className="text-[18px] capitalize">{user?.name}</h1>
         <p className="text-[16px] text-[#000c]">
           {data?.lastMessageId !== userData?._id
             ? "You:"
@@ -341,7 +344,7 @@ const SellerInbox = ({
             className="w-[60px] h-[60px] rounded-full"
           />
           <div className="pl-3">
-            <h1 className="text-[18px] font-[600]">{userData?.name}</h1>
+            <h1 className="text-[18px] capitalize font-[600]">{userData?.name}</h1>
             <h1>{activeStatus ? "Active Now" : ""}</h1>
           </div>
         </div>
@@ -353,10 +356,11 @@ const SellerInbox = ({
       </div>
 
       {/* messages */}
-      <div className="px-3 h-[75vh] py-3 overflow-y-scroll">
+      <div className="px-3 h-[70vh] py-3 overflow-y-scroll">
         {messages &&
           messages.map((item, index) => (
             <div
+		key={index}
               className={`flex w-full my-2 ${
                 item.sender === sellerId ? "justify-end" : "justify-start"
               }`}
@@ -416,6 +420,7 @@ const SellerInbox = ({
           <input
             type="text"
             required
+	    autofocus
             placeholder="Enter your message..."
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
@@ -425,7 +430,7 @@ const SellerInbox = ({
           <label htmlFor="send">
             <AiOutlineSend
               size={20}
-              className="absolute right-4 top-5 cursor-pointer"
+              className="absolute right-7 top-7 cursor-pointer"
             />
           </label>
         </div>

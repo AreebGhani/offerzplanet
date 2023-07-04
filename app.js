@@ -7,7 +7,7 @@ const cors = require("cors");
 const path = require("path");
 
 app.use(cors({
-  origin: 'https://offerzplanet.vercel.app/',
+  origin: 'https://offerzplanet.vercel.app',
   credentials: true
 }));
 

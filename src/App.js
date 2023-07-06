@@ -3,6 +3,8 @@ import "./App.css";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import {
   LoginPage,
+  ForgetPasswordPage,
+  ChangePasswordPage,
   SignupPage,
   ActivationPage,
   HomePage,
@@ -18,6 +20,8 @@ import {
   ShopCreatePage,
   SellerActivationPage,
   ShopLoginPage,
+  ShopForgetPasswordPage,
+  ShopChangePasswordPage,
   OrderDetailsPage,
   TrackOrderPage,
   UserInbox,
@@ -51,6 +55,7 @@ import {
   AdminDashboardCreateBrand,
   AdminDashboardSponsor,
   AdminDashboardCreateSponsor,
+  AdminDashboardConfig,
 } from "./routes/AdminRoutes";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -103,6 +108,8 @@ const App = () => {
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/forget-password" element={<ForgetPasswordPage />} />
+        <Route path="/change-password/:id" element={<ChangePasswordPage />} />
         <Route path="/sign-up" element={<SignupPage />} />
         <Route
           path="/activation/:activation_token"
@@ -162,6 +169,8 @@ const App = () => {
         {/* shop Routes */}
         <Route path="/shop-create" element={<ShopCreatePage />} />
         <Route path="/shop-login" element={<ShopLoginPage />} />
+        <Route path="/shop-forget-password" element={<ShopForgetPasswordPage />} />
+        <Route path="/shop-change-password/:id" element={<ShopChangePasswordPage />} />
         <Route
           path="/shop/:id"
           element={
@@ -369,6 +378,14 @@ const App = () => {
           element={
             <ProtectedAdminRoute>
               <AdminDashboardCreateSponsor />
+            </ProtectedAdminRoute>
+          }
+        />
+        <Route
+          path="/admin-config"
+          element={
+            <ProtectedAdminRoute>
+              <AdminDashboardConfig />
             </ProtectedAdminRoute>
           }
         />

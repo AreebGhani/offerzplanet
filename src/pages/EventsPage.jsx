@@ -1,12 +1,19 @@
-import React from "react";
-import { useSelector } from "react-redux";
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import EventCard from "../components/Events/EventCard";
 import Header from "../components/Layout/Header";
 import Loader from "../components/Layout/Loader";
 import styles from "../styles/styles";
 import Footer from "../components/Layout/Footer";
+import { getAllEvents } from "../redux/actions/event";
 
 const EventsPage = () => {
+  const dispatch = useDispatch();
+
+  useEffect(()=> {
+    dispatch(getAllEvents);
+  }, [dispatch]);
+
   const { allEvents, isLoading } = useSelector((state) => state.events);
   return (
     <>
@@ -23,7 +30,7 @@ const EventsPage = () => {
             No Event Found!
           </h1>
         ) : 
-	allEvents.map((data, index) => {
+           allEvents.map((data, index) => {
             return (<EventCard active key={index} data={data} />)
 	  })
 	}

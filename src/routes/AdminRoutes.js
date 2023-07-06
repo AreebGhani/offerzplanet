@@ -11,6 +11,7 @@ import AdminDashboardBrand from "../pages/AdminDashboardBrand";
 import AdminDashboardCreateBrand from "../pages/AdminDashboardCreateBrand";
 import AdminDashboardSponsor from "../pages/AdminDashboardSponsor";
 import AdminDashboardCreateSponsor from "../pages/AdminDashboardCreateSponsor";
+import AdminDashboardConfig from "../pages/AdminDashboardConfig";
 
 export {
   AdminDashboardPage,
@@ -26,4 +27,5 @@ export {
   AdminDashboardCreateBrand,
   AdminDashboardSponsor,
   AdminDashboardCreateSponsor,
+  AdminDashboardConfig,
 };

@@ -1,4 +1,6 @@
 import LoginPage from "../pages/Login";
+import ForgetPasswordPage from "../pages/ForgetPassword";
+import ChangePasswordPage from "../pages/ChangePassword";
 import SignupPage from "../pages/SignupPage";
 import ActivationPage from "../pages/ActivationPage";
 import HomePage from "../pages/HomePage";
@@ -14,12 +16,16 @@ import ProfilePage from "../pages/ProfilePage";
 import ShopCreatePage from "../pages/ShopCreate";
 import SellerActivationPage from "../pages/SellerActivationPage";
 import ShopLoginPage from "../pages/ShopLoginPage";
+import ShopForgetPasswordPage from "../pages/ShopForgetPasswordPage";
+import ShopChangePasswordPage from "../pages/ShopChangePasswordPage";
 import OrderDetailsPage from "../pages/OrderDetailsPage";
 import TrackOrderPage from "../pages/TrackOrderPage";
 import UserInbox from "../pages/UserInbox.jsx";
 
 export {
     LoginPage,
+    ForgetPasswordPage,
+    ChangePasswordPage,
     SignupPage,
     ActivationPage,
     HomePage,
@@ -35,6 +41,8 @@ export {
     ShopCreatePage,
     SellerActivationPage,
     ShopLoginPage,
+    ShopForgetPasswordPage,
+    ShopChangePasswordPage,
     OrderDetailsPage,
     TrackOrderPage,
     UserInbox

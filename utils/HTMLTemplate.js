@@ -7,10 +7,8 @@ const HTMLTemplate = (text) => {
           <title>Offerz Planet</title>
           <style>
             .container {
-              width: 100%;
-              height: 100%;
-              padding: 20px;
-              background-color: #f4f4f4;
+              width: auto;
+              height: auto;
             }
             .email {
               width: 80%;
@@ -19,7 +17,7 @@ const HTMLTemplate = (text) => {
               padding: 20px;
             }
             .email-header {
-              background-color: #333;
+              background-color: #ec1c2c;
               color: #fff;
               padding: 20px;
               text-align: center;
@@ -28,7 +26,7 @@ const HTMLTemplate = (text) => {
               padding: 20px;
             }
             .email-footer {
-              background-color: #333;
+              background-color: #ec1c2c;
               color: #fff;
               padding: 20px;
               text-align: center;
@@ -45,7 +43,7 @@ const HTMLTemplate = (text) => {
                 <p>${text}</p>
               </div>
               <div class="email-footer">
-                <p>Connect Customers With Sellers. &copy; - 2023</p>
+                <p>&copy; 2023 Offerzplanet. All rights reserved.</p>
               </div>
             </div>
           </div>

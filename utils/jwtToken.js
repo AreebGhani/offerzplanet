@@ -10,11 +10,20 @@ const sendToken = (user, statusCode, res) => {
     secure: true,
   };
 
-  res.status(statusCode).cookie("token", token, options).json({
+  if(user?.role === "Admin"){
+    res.status(statusCode).cookie("token", token, options).json({
+    success: true,
+    user,
+    role: "Admin",
+    token,
+   });
+  }else{
+    res.status(statusCode).cookie("token", token, options).json({
     success: true,
     user,
     token,
   });
+  }
 };
 
 module.exports = sendToken;

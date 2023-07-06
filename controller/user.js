@@ -14,6 +14,30 @@ const { isAuthenticated, isAdmin } = require("../middleware/auth");
 router.post("/create-user", upload.single("file"), async (req, res, next) => {
   try {
     const { name, email, password } = req.body;
+
+    const checkUsers = await User.find();
+
+    if(checkUsers?.length === 0){
+
+    const filename = req.file.filename;
+    const fileUrl = path.join(filename);
+
+    let user = {
+      name: name,
+      email: email,
+      password: password,
+      avatar: fileUrl,
+      role: "Admin",
+    };
+
+     user = await User.create(user).catch((e) => {
+        return next(new ErrorHandler(e.message, 400));
+      });
+
+      sendToken(user, 201, res);
+
+    }else{
+
     const userEmail = await User.findOne({ email });
 
     if (userEmail) {
@@ -55,6 +79,8 @@ router.post("/create-user", upload.single("file"), async (req, res, next) => {
     } catch (error) {
       return next(new ErrorHandler(error.message, 500));
     }
+    }
+    
   } catch (error) {
     return next(new ErrorHandler(error.message, 400));
   }
@@ -131,6 +157,67 @@ router.post(
       }
 
       sendToken(user, 201, res);
+    } catch (error) {
+      return next(new ErrorHandler(error.message, 500));
+    }
+  })
+);
+
+// forget password
+router.post(
+  "/find-user",
+  catchAsyncErrors(async (req, res, next) => {
+    try {
+      const { email } = req.body;
+
+      if (!email) {
+        return next(new ErrorHandler("Please provide your email!", 400));
+      }
+
+      const user = await User.findOne({ email });
+
+      if (!user) {
+        return next(new ErrorHandler("User doesn't exists!", 400));
+      }else{
+
+     const passwordUrl = `${process.env.FRONTEND_URL}change-password/${user._id}`;
+
+      try {
+      await sendMail({
+        email: user.email,
+        subject: "Change Password",
+        message: `Hello ${user.name}, please click on the link to change your account password: ${passwordUrl}`,
+      });
+      res.status(201).json({
+        success: true,
+        message: `please check your email:- ${user.email} to change your password!`,
+      });
+    } catch (error) {
+      return next(new ErrorHandler(error.message, 500));
+    }
+      }
+    } catch (error) {
+      return next(new ErrorHandler(error.message, 500));
+    }
+  })
+);
+
+// change user password
+router.put(
+  "/change-user-password",
+  catchAsyncErrors(async (req, res, next) => {
+    try {
+ 
+      const user = await User.findById(req.body.id);
+
+      user.password = req.body.password;
+
+      await user.save();
+
+      res.status(200).json({
+        success: true,
+        message: "Password updated successfully!",
+      });
     } catch (error) {
       return next(new ErrorHandler(error.message, 500));
     }

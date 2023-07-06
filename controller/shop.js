@@ -93,8 +93,7 @@ router.post(
 
       if (seller) {
         return next(new ErrorHandler("User already exists", 400));
-      }
-
+      }else{
       seller = await Shop.create({
         name,
         email,
@@ -108,6 +107,7 @@ router.post(
       })
       
       sendShopToken(seller, 201, res);
+      }
     } catch (error) {
       return next(new ErrorHandler(error.message, 500));
     }
@@ -140,6 +140,67 @@ router.post(
       }
 
       sendShopToken(user, 201, res);
+    } catch (error) {
+      return next(new ErrorHandler(error.message, 500));
+    }
+  })
+);
+
+// forget password
+router.post(
+  "/find-shop",
+  catchAsyncErrors(async (req, res, next) => {
+    try {
+      const { email } = req.body;
+
+      if (!email) {
+        return next(new ErrorHandler("Please provide your email!", 400));
+      }
+
+      const shop = await Shop.findOne({ email });
+
+      if (!shop) {
+        return next(new ErrorHandler("Shop doesn't exists!", 400));
+      }else{
+
+     const passwordUrl = `${process.env.FRONTEND_URL}shop-change-password/${shop._id}`;
+
+      try {
+      await sendMail({
+        email: shop.email,
+        subject: "Change Shop Password",
+        message: `Hello ${shop.name}, please click on the link to change your shop password: ${passwordUrl}`,
+      });
+      res.status(201).json({
+        success: true,
+        message: `please check your email:- ${shop.email} to change your password!`,
+      });
+    } catch (error) {
+      return next(new ErrorHandler(error.message, 500));
+    }
+      }
+    } catch (error) {
+      return next(new ErrorHandler(error.message, 500));
+    }
+  })
+);
+
+// change shop password
+router.put(
+  "/change-shop-password",
+  catchAsyncErrors(async (req, res, next) => {
+    try {
+ 
+      const shop = await Shop.findById(req.body.id);
+
+      shop.password = req.body.password;
+
+      await shop.save();
+
+      res.status(200).json({
+        success: true,
+        message: "Shop Password updated successfully!",
+      });
     } catch (error) {
       return next(new ErrorHandler(error.message, 500));
     }

@@ -20,6 +20,7 @@ const Checkout = () => {
   const [couponCode, setCouponCode] = useState("");
   const [couponCodeData, setCouponCodeData] = useState(null);
   const [discountPrice, setDiscountPrice] = useState(null);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -64,6 +65,7 @@ const Checkout = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     const name = couponCode;
 
     await axios.get(`${server}/coupon/get-coupon-value/${name}`).then((res) => {
@@ -78,25 +80,37 @@ const Checkout = () => {
         if (isCouponValid.length === 0) {
           toast.error("Coupon code is not valid for these products!");
           setCouponCode("");
+          setLoading(false);
         } else {
           const eligiblePrice = isCouponValid.reduce(
             (acc, item) => acc + item.qty * item.discountPrice,
             0
           );
+          if(minAmount !== null && maxAmount !== null){
           if(eligiblePrice >= minAmount && eligiblePrice <= maxAmount){
 	    const discountPrice = (eligiblePrice * couponCodeValue) / 100;
             setDiscountPrice(discountPrice);
             setCouponCodeData(res.data.couponCode);
             setCouponCode("");
+            setLoading(false);
 	  }else{
 	     toast.error(`Minimum Purchase of Rs.${minAmount} & Maximum Purchase of Rs.${maxAmount} is required!`);
              setCouponCode("");
+             setLoading(false);
           }
+         }else{
+           const discountPrice = (eligiblePrice * couponCodeValue) / 100;
+            setDiscountPrice(discountPrice);
+            setCouponCodeData(res.data.couponCode);
+            setCouponCode("");
+            setLoading(false);
+         }
         }
       }
       if (res.data.couponCode === null) {
         toast.error("Coupon code doesn't exists!");
         setCouponCode("");
+        setLoading(false);
       }
     });
   };
@@ -136,6 +150,7 @@ const Checkout = () => {
             couponCode={couponCode}
             setCouponCode={setCouponCode}
             discountPercentenge={discountPercentenge}
+            loading={loading}
           />
         </div>
       </div>
@@ -232,7 +247,7 @@ const ShippingInfo = ({
             </select>
           </div>
           <div className="w-[50%]">
-            <label className="block pb-2">City</label>
+            <label className="block pb-2">State</label>
             <select
               className="w-[95%] border h-[40px] rounded-[5px]"
               value={city}
@@ -316,6 +331,7 @@ const CartData = ({
   couponCode,
   setCouponCode,
   discountPercentenge,
+  loading
 }) => {
   return (
     <div className="w-full bg-[#fff] rounded-md p-5 pb-8">
@@ -349,7 +365,7 @@ const CartData = ({
         <input
           className={`w-full h-[40px] border border-[#f63b60] text-center text-[#f63b60] rounded-[3px] mt-8 cursor-pointer`}
           required
-          value="Apply code"
+          value={loading ? "Loading..." : "Apply Code"}
           type="submit"
         />
       </form>

@@ -237,14 +237,14 @@ const PaymentInfo = ({
                   <input
                     required
                     placeholder={user && user.name}
-                    className={`${styles.input} !w-[95%] text-[#444]`}
+                    className={`${styles.input} !w-[95%] !h-[3rem] text-[#444]`}
                     value={user && user.name}
                   />
                 </div>
                 <div className="w-[50%]">
                   <label className="block pb-2">Exp Date</label>
                   <CardExpiryElement
-                    className={`${styles.input}`}
+                    className={`${styles.input} !h-[3rem]`}
                     options={{
                       style: {
                         base: {
@@ -269,7 +269,7 @@ const PaymentInfo = ({
                 <div className="w-[50%]">
                   <label className="block pb-2">Card Number</label>
                   <CardNumberElement
-                    className={`${styles.input} !h-[35px] !w-[95%]`}
+                    className={`${styles.input} !h-[3rem] !w-[95%]`}
                     options={{
                       style: {
                         base: {
@@ -291,7 +291,7 @@ const PaymentInfo = ({
                 <div className="w-[50%]">
                   <label className="block pb-2">CVV</label>
                   <CardCvcElement
-                    className={`${styles.input} !h-[35px]`}
+                    className={`${styles.input} !h-[3rem]`}
                     options={{
                       style: {
                         base: {
@@ -417,20 +417,20 @@ const CartData = ({ orderData }) => {
     <div className="w-full bg-[#fff] rounded-md p-5 pb-8">
       <div className="flex justify-between">
         <h3 className="text-[16px] font-[400] text-[#000000a4]">subtotal:</h3>
-        <h5 className="text-[18px] font-[600]">${orderData?.subTotalPrice}</h5>
+        <h5 className="text-[18px] font-[600]">Rs.{orderData?.subTotalPrice}</h5>
       </div>
       <br />
       <div className="flex justify-between">
         <h3 className="text-[16px] font-[400] text-[#000000a4]">shipping:</h3>
-        <h5 className="text-[18px] font-[600]">${shipping}</h5>
+        <h5 className="text-[18px] font-[600]">Rs.{shipping}</h5>
       </div>
       <br />
       <div className="flex justify-between border-b pb-3">
         <h3 className="text-[16px] font-[400] text-[#000000a4]">Discount:</h3>
-        <h5 className="text-[18px] font-[600]">{orderData?.discountPrice ? "$" + orderData.discountPrice : "-"}</h5>
+        <h5 className="text-[18px] font-[600]">{orderData?.discountPrice ? "Rs." + orderData.discountPrice : "-"}</h5>
       </div>
       <h5 className="text-[18px] font-[600] text-end pt-3">
-        ${orderData?.totalPrice}
+        Rs.{orderData?.totalPrice}
       </h5>
       <br />
     </div>

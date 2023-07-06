@@ -17,9 +17,11 @@ const ShopCreate = () => {
   const [avatar,setAvatar] = useState();
   const [password, setPassword] = useState("");
   const [visible, setVisible] = useState(false);
+  const [loading, setLoading] = useState(false);
      
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     const config = { headers: { "Content-Type": "multipart/form-data" } };
 
     const newForm = new FormData();
@@ -38,6 +40,7 @@ const ShopCreate = () => {
     axios
       .post(`${server}/shop/create-shop`, newForm, config)
       .then((res) => {
+        setLoading(false);
         toast.success(res.data.message);
         setName("");
         setEmail("");
@@ -46,8 +49,10 @@ const ShopCreate = () => {
         setZipCode("");
         setAddress("");
         setPhoneNumber("");
+        navigate("/shop-login");
       })
       .catch((error) => {
+        setLoading(false);
         toast.error(error.response.data.message);
       });
   };
@@ -235,7 +240,7 @@ const ShopCreate = () => {
                 type="submit"
                 className="group relative w-full h-[40px] flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700"
               >
-                Submit
+                {loading ? "Loading..." : "Submit"}
               </button>
             </div>
             <div className={`${styles.noramlFlex} w-full`}>

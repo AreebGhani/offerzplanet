@@ -15,6 +15,7 @@ import logo from "../../Assests/img/logo.png";
 import payment from "../../Assests/img/footer-payment.webp";
 
 const Footer = () => {
+  const date = new Date().getFullYear();
   return (
     <div className="bg-[#000] text-white">
       <div className="flex justify-around items-center sm:px-12 px-4 bg-[#ec1c2c] py-7">
@@ -104,7 +105,7 @@ const Footer = () => {
       <div
         className="flex flex-col md:flex-row lg:flex-row justify-between items-center text-center px-10 text-gray-400 text-sm pb-8"
       >
-        <span>© 2023 Offerzplanet. All rights reserved.</span>
+        <span>© {date} Offerzplanet. All rights reserved.</span>
         {/*<span>Terms · Privacy Policy</span>*/}
           <img
             src={payment}

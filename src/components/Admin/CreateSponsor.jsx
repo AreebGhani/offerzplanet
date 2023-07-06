@@ -12,6 +12,7 @@ const CreateSponsor = () => {
     const [buttonText, setButtonText] = useState("");
     const [buttonLink, setButtonLink] = useState("");
     const [image, setImage] = useState(null);
+    const [loading, setLoading] = useState(false);
 
     const handleImageChange = (e) => {
         e.preventDefault();
@@ -21,6 +22,7 @@ const CreateSponsor = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setLoading(true);
         const newForm = new FormData();
         newForm.append("image", image);
         newForm.append("title", title);
@@ -35,12 +37,14 @@ const CreateSponsor = () => {
             newForm,
             config
         ).then(({ data }) => {
+             setLoading(false);
             if (data.success) {
                 toast.success("Sponsor added successfully!");
                 navigate("/admin-sponsors");
                 window.location.reload();
             }
         }).catch((error) => {
+            setLoading(false);
             toast.error(error.response.data.message);
         });
     };
@@ -61,6 +65,7 @@ const CreateSponsor = () => {
                         className="mt-2 appearance-none block w-full px-3 h-[35px] border border-gray-300 rounded-[3px] placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                         onChange={(e) => setTitle(e.target.value)}
                         placeholder="Enter slide title..."
+                        required
                     />
                 </div>
                 <br />
@@ -116,6 +121,7 @@ const CreateSponsor = () => {
                         id="upload"
                         className="hidden"
                         multiple
+                        required
                         onChange={handleImageChange}
                     />
                     <div className="w-full flex items-center flex-wrap">
@@ -137,7 +143,7 @@ const CreateSponsor = () => {
                     <div>
                         <input
                             type="submit"
-                            value="Create"
+                            value={loading ? "Loading..." : "Create"}
                             className="mt-2 cursor-pointer appearance-none text-center block w-full px-3 h-[35px] border border-gray-300 rounded-[3px] placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                         />
                     </div>

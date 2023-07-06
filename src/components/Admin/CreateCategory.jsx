@@ -11,6 +11,7 @@ const CreateCategory = () => {
     const navigate = useNavigate();
     const [name, setName] = useState("");
     const [image, setImage] = useState(null);
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         if (error) {
@@ -31,10 +32,11 @@ const CreateCategory = () => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
+        setLoading(true);
         const newForm = new FormData();
         newForm.append("image", image);
         newForm.append("name", name);
-        dispatch(createCategory(newForm));
+        dispatch(createCategory(newForm)).then(() => setLoading(false));
     };
 
     return (
@@ -53,6 +55,7 @@ const CreateCategory = () => {
                         className="mt-2 appearance-none block w-full px-3 h-[35px] border border-gray-300 rounded-[3px] placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                         onChange={(e) => setName(e.target.value)}
                         placeholder="Enter your new category name..."
+                        required
                     />
                 </div>
                 <br />
@@ -66,6 +69,7 @@ const CreateCategory = () => {
                         id="upload"
                         className="hidden"
                         multiple
+                        required
                         onChange={handleImageChange}
                     />
                     <div className="w-full flex items-center flex-wrap">
@@ -87,7 +91,7 @@ const CreateCategory = () => {
                     <div>
                         <input
                             type="submit"
-                            value="Create"
+                            value={loading ? "Loading..." : "Create"}
                             className="mt-2 cursor-pointer appearance-none text-center block w-full px-3 h-[35px] border border-gray-300 rounded-[3px] placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                         />
                     </div>

@@ -143,8 +143,8 @@ const CartSingle = ({ data, quantityChangeHandler, removeFromCartHandler }) => {
           </h4>
         </div>
         <RxCross1
-          className="cursor-pointer"
-          style={{fontSize: "3rem"}}
+          className="cursor-pointer ml-5"
+          size={20}
           onClick={() => removeFromCartHandler(data)}
         />
       </div>

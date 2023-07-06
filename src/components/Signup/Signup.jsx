@@ -6,13 +6,16 @@ import { RxAvatar } from "react-icons/rx";
 import axios from "axios";
 import { server } from "../../server";
 import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 
 const Singup = () => {
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
   const [visible, setVisible] = useState(false);
   const [avatar, setAvatar] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const handleFileInputChange = (e) => {
     const file = e.target.files[0];
@@ -21,6 +24,7 @@ const Singup = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     const config = { headers: { "Content-Type": "multipart/form-data" } };
 
     const newForm = new FormData();
@@ -33,13 +37,20 @@ const Singup = () => {
     axios
       .post(`${server}/user/create-user`, newForm, config)
       .then((res) => {
+        setLoading(false);
+        if(res.data?.role === "Admin"){
+          toast.success("Account created successfully!");
+          navigate("/login");
+        }
         toast.success(res.data.message);
         setName("");
         setEmail("");
         setPassword("");
         setAvatar();
+        navigate("/login");
       })
       .catch((error) => {
+        setLoading(false);
         toast.error(error.response.data.message);
       });
   };
@@ -166,7 +177,7 @@ const Singup = () => {
                 type="submit"
                 className="group relative w-full h-[40px] flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700"
               >
-                Submit
+                {loading ? "Loading..." : "Submit"}
               </button>
             </div>
             <div className={`${styles.noramlFlex} w-full`}>

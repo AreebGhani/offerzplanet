@@ -23,6 +23,7 @@ const CreateEvent = () => {
   const [stock, setStock] = useState();
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const handleStartDateChange = (e) => {
     const startDate = new Date(e.target.value);
@@ -65,7 +66,7 @@ const CreateEvent = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
+    setLoading(true);
     const newForm = new FormData();
 
     images.forEach((image) => {
@@ -81,7 +82,7 @@ const CreateEvent = () => {
     newForm.append("shopId", seller._id);
     newForm.append("start_Date", startDate.toISOString());
     newForm.append("Finish_Date", endDate.toISOString());
-    dispatch(createevent(newForm));
+    dispatch(createevent(newForm)).then(() => setLoading(false));
   };
 
   return (
@@ -101,6 +102,7 @@ const CreateEvent = () => {
             className="mt-2 appearance-none block w-full px-3 h-[35px] border border-gray-300 rounded-[3px] placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
             onChange={(e) => setName(e.target.value)}
             placeholder="Enter your event product name..."
+            required
           />
         </div>
         <br />
@@ -118,6 +120,7 @@ const CreateEvent = () => {
             className="mt-2 appearance-none block w-full pt-2 px-3 border border-gray-300 rounded-[3px] placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
             onChange={(e) => setDescription(e.target.value)}
             placeholder="Enter your event product description..."
+            required
           ></textarea>
         </div>
         <br />
@@ -128,6 +131,7 @@ const CreateEvent = () => {
           <select
             className="w-full mt-2 border h-[35px] rounded-[5px]"
             value={category}
+            required
             onChange={(e) => setCategory(e.target.value)}
           >
             <option value="Choose a category">Choose a category</option>
@@ -153,7 +157,9 @@ const CreateEvent = () => {
         </div>
         <br />
         <div>
-          <label className="pb-2">Original Price</label>
+          <label className="pb-2">
+             Original Price <span className="text-red-500">*</span>
+          </label>
           <input
             type="number"
             name="price"
@@ -161,6 +167,7 @@ const CreateEvent = () => {
             className="mt-2 appearance-none block w-full px-3 h-[35px] border border-gray-300 rounded-[3px] placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
             onChange={(e) => setOriginalPrice(e.target.value)}
             placeholder="Enter your event product price..."
+            required
           />
         </div>
         <br />
@@ -175,6 +182,7 @@ const CreateEvent = () => {
             className="mt-2 appearance-none block w-full px-3 h-[35px] border border-gray-300 rounded-[3px] placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
             onChange={(e) => setDiscountPrice(e.target.value)}
             placeholder="Enter your event product price with discount..."
+            required
           />
         </div>
         <br />
@@ -189,6 +197,7 @@ const CreateEvent = () => {
             className="mt-2 appearance-none block w-full px-3 h-[35px] border border-gray-300 rounded-[3px] placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
             onChange={(e) => setStock(e.target.value)}
             placeholder="Enter your event product stock..."
+            required
           />
         </div>
         <br />
@@ -204,6 +213,7 @@ const CreateEvent = () => {
             className="mt-2 appearance-none block w-full px-3 h-[35px] border border-gray-300 rounded-[3px] placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
             onChange={handleStartDateChange}
             min={today}
+            required
             placeholder="Enter your event product stock..."
           />
         </div>
@@ -220,6 +230,7 @@ const CreateEvent = () => {
             className="mt-2 appearance-none block w-full px-3 h-[35px] border border-gray-300 rounded-[3px] placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
             onChange={handleEndDateChange}
             min={minEndDate}
+            required
             placeholder="Enter your event product stock..."
           />
         </div>
@@ -234,6 +245,7 @@ const CreateEvent = () => {
             id="upload"
             className="hidden"
             multiple
+            required
             onChange={handleImageChange}
           />
           <div className="w-full flex items-center flex-wrap">
@@ -254,7 +266,7 @@ const CreateEvent = () => {
           <div>
             <input
               type="submit"
-              value="Create"
+              value={loading ? "Loading..." : "Create"}
               className="mt-2 cursor-pointer appearance-none text-center block w-full px-3 h-[35px] border border-gray-300 rounded-[3px] placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
             />
           </div>

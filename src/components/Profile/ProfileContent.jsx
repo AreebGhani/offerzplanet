@@ -33,6 +33,7 @@ const ProfileContent = ({ active }) => {
   const [phoneNumber, setPhoneNumber] = useState(user && user.phoneNumber);
   const [password, setPassword] = useState("");
   const [avatar, setAvatar] = useState(null);
+  const [loading, setLoading] = useState(false);
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -47,8 +48,9 @@ const ProfileContent = ({ active }) => {
   }, [error, successMessage]);
 
   const handleSubmit = (e) => {
+    setLoading(true);
     e.preventDefault();
-    dispatch(updateUserInformation(name, email, phoneNumber, password));
+    dispatch(updateUserInformation(name, email, phoneNumber, password)).then(() => setLoading(false));
   };
 
   const handleImage = async (e) => {
@@ -91,6 +93,7 @@ const ProfileContent = ({ active }) => {
                 <input
                   type="file"
                   id="image"
+                  required
                   className="hidden"
                   onChange={handleImage}
                 />
@@ -140,7 +143,7 @@ const ProfileContent = ({ active }) => {
                 </div>
 
                 <div className=" w-[100%] 800px:w-[50%]">
-                  <label className="block pb-2">Enter your password</label>
+                  <label className="block pb-2">Verify your password</label>
                   <input
                     type="password"
                     className={`${styles.input} !w-[95%] mb-4 800px:mb-0`}
@@ -153,7 +156,7 @@ const ProfileContent = ({ active }) => {
               <input
                 className={`w-[250px] h-[40px] border border-[#ec1c2c] border-2 text-center text-[#ec1c2c] mt-8 cursor-pointer font-medium`}
                 required
-                value="Update"
+                value={loading ? "Loading..." : "Update"}
                 type="submit"
               />
             </form>
@@ -502,10 +505,11 @@ const ChangePassword = () => {
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const passwordChangeHandler = async (e) => {
     e.preventDefault();
-
+    setLoading(true);
     await axios
       .put(
         `${server}/user/update-user-password`,
@@ -513,12 +517,14 @@ const ChangePassword = () => {
         { withCredentials: true }
       )
       .then((res) => {
+        setLoading(false);
         toast.success(res.data.message);
         setOldPassword("");
         setNewPassword("");
         setConfirmPassword("");
       })
       .catch((error) => {
+        setLoading(false);
         toast.error(error.response.data.message);
       });
   };
@@ -565,7 +571,7 @@ const ChangePassword = () => {
             <input
               className={`w-[95%] h-[40px] border border-[#ec1c2c] border-2 text-center text-[#ec1c2c] mt-8 cursor-pointer font-medium`}
               required
-              value="Update"
+              value={loading ? "Loading..." : "Update"}
               type="submit"
             />
           </div>
@@ -584,6 +590,7 @@ const Address = () => {
   const [address2, setAddress2] = useState("");
   const [addressType, setAddressType] = useState("");
   const { user } = useSelector((state) => state.user);
+  const [loading, setLoading] = useState(false);
   const dispatch = useDispatch();
 
   const addressTypeData = [
@@ -600,8 +607,9 @@ const Address = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    setLoading(true);
     if (addressType === "" || country === "" || city === "") {
+      setLoading(false);
       toast.error("Please fill all the fields!");
     } else {
       dispatch(
@@ -613,7 +621,7 @@ const Address = () => {
           zipCode,
           addressType
         )
-      );
+      ).then(() => setLoading(false));
       setOpen(false);
       setCountry("");
       setCity("");
@@ -757,9 +765,9 @@ const Address = () => {
                   <div className=" w-full pb-2">
                     <input
                       type="submit"
+                      value={loading ? "Loading..." : "Submit"}
                       className={`${styles.input} mt-5 cursor-pointer`}
                       required
-                      readOnly
                     />
                   </div>
                 </div>

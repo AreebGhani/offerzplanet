@@ -11,10 +11,11 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [visible, setVisible] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    setLoading(true);
     await axios
       .post(
         `${server}/user/login-user`,
@@ -25,11 +26,13 @@ const Login = () => {
         { withCredentials: true }
       )
       .then((res) => {
+        setLoading(false);
         toast.success("Login Success!");
         navigate("/profile");
         window.location.reload(true); 
       })
       .catch((err) => {
+        setLoading(false);
         toast.error(err.response.data.message);
       });
   };
@@ -111,12 +114,12 @@ const Login = () => {
                 </label>
               </div>
               <div className="text-sm">
-                <a
-                  href=".forgot-password"
+                <Link
+                  to="/forget-password"
                   className="font-medium text-red-600 hover:text-red-500"
                 >
                   Forgot your password?
-                </a>
+                </Link>
               </div>
             </div>
             <div>
@@ -124,7 +127,7 @@ const Login = () => {
                 type="submit"
                 className="group relative w-full h-[40px] flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700"
               >
-                Submit
+                {loading ? "Loading..." : "Submit"}
               </button>
             </div>
             <div className={`${styles.noramlFlex} w-full`}>

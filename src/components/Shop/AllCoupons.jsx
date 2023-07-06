@@ -23,6 +23,7 @@ const AllCoupons = () => {
   const [value, setValue] = useState(null);
   const { seller } = useSelector((state) => state.seller);
   const { products } = useSelector((state) => state.products);
+  const [loading, setLoading] = useState(false);
 
   const dispatch = useDispatch();
 
@@ -54,7 +55,7 @@ const AllCoupons = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    setLoading(true);
     await axios
       .post(
         `${server}/coupon/create-coupon-code`,
@@ -69,11 +70,13 @@ const AllCoupons = () => {
         { withCredentials: true }
       )
       .then((res) => {
+       setLoading(false);
        toast.success("Coupon code created successfully!");
        setOpen(false);
        window.location.reload();
       })
       .catch((error) => {
+        setLoading(false);
 	setOpen(false)
         toast.error(error.response.data.message);
       });
@@ -131,15 +134,15 @@ const AllCoupons = () => {
 
   function getSelectedProduct(item){
      let selectedProduct = products.filter(p => p._id === item.selectedProduct);
-     return selectedProduct[0].name;
+     return selectedProduct[0]?.name;
   }
 
   coupouns &&
   coupouns.forEach((item) => {
       row.push({
-        id: item._id,
-        name: item.name,
-        price: item.value + "%",
+        id: item?._id,
+        name: item?.name,
+        price: item?.value + "%",
         product: getSelectedProduct(item),
       });
     });
@@ -259,7 +262,7 @@ const AllCoupons = () => {
                   <div>
                     <input
                       type="submit"
-                      value="Create"
+                      value={loading ? "Loading..." : "Create"}
                       className="mt-2 cursor-pointer appearance-none block w-full px-3 h-[35px] border border-gray-300 rounded-[3px] placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                     />
                   </div>

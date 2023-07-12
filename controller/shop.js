@@ -1,11 +1,14 @@
 const express = require("express");
+const mongoose = require("mongoose");
 const path = require("path");
 const router = express.Router();
 const fs = require("fs");
 const jwt = require("jsonwebtoken");
 const sendMail = require("../utils/sendMail");
-const sendToken = require("../utils/jwtToken");
 const Shop = require("../model/shop");
+const Product = require("../model/product");
+const Event = require("../model/event");
+const CoupounCode = require("../model/coupounCode");
 const { isAuthenticated, isSeller, isAdmin } = require("../middleware/auth");
 const { upload } = require("../multer");
 const catchAsyncErrors = require("../middleware/catchAsyncErrors");
@@ -49,12 +52,12 @@ router.post("/create-shop", upload.single("file"), async (req, res, next) => {
     try {
       await sendMail({
         email: seller.email,
-        subject: "Activate your Shop",
+        subject: "Activate Your Shop",
         message: `Hello ${seller.name}, please click on the link to activate your shop: ${activationUrl}`,
       });
       res.status(201).json({
         success: true,
-        message: `please check your email:- ${seller.email} to activate your shop!`,
+        message: `Please check your email:- ${seller.email} to activate your shop!`,
       });
     } catch (error) {
       return next(new ErrorHandler(error.message, 500));
@@ -89,24 +92,25 @@ router.post(
       const { name, email, password, avatar, zipCode, address, phoneNumber } =
         newSeller;
 
-      let seller = await Shop.findOne({ email });
+      const isSellerExist = await Shop.findOne({ email });
 
-      if (seller) {
+      if (isSellerExist) {
         return next(new ErrorHandler("User already exists", 400));
-      }else{
-      seller = await Shop.create({
-        name,
-        email,
-        avatar,
-        password,
-        zipCode,
-        address,
-        phoneNumber,
-      }).catch((e) => {
-        return next(new ErrorHandler(e.message, 400));
-      })
-      
-      sendShopToken(seller, 201, res);
+      } else {
+
+        const seller = await Shop.create({
+          name,
+          email,
+          avatar,
+          password,
+          zipCode,
+          address,
+          phoneNumber,
+        }).catch((e) => {
+          return next(new ErrorHandler(e.message, 400));
+        })
+        console.log(seller);
+        sendShopToken(seller, 201, res);
       }
     } catch (error) {
       return next(new ErrorHandler(error.message, 500));
@@ -161,23 +165,23 @@ router.post(
 
       if (!shop) {
         return next(new ErrorHandler("Shop doesn't exists!", 400));
-      }else{
+      } else {
 
-     const passwordUrl = `${process.env.FRONTEND_URL}shop-change-password/${shop._id}`;
+        const passwordUrl = `${process.env.FRONTEND_URL}shop-change-password/${shop._id}`;
 
-      try {
-      await sendMail({
-        email: shop.email,
-        subject: "Change Shop Password",
-        message: `Hello ${shop.name}, please click on the link to change your shop password: ${passwordUrl}`,
-      });
-      res.status(201).json({
-        success: true,
-        message: `please check your email:- ${shop.email} to change your password!`,
-      });
-    } catch (error) {
-      return next(new ErrorHandler(error.message, 500));
-    }
+        try {
+          await sendMail({
+            email: shop.email,
+            subject: "Change Shop Password",
+            message: `Hello ${shop.name}, please click on the link to change your shop password: ${passwordUrl}`,
+          });
+          res.status(201).json({
+            success: true,
+            message: `Please check your email:- ${shop.email} to change your password!`,
+          });
+        } catch (error) {
+          return next(new ErrorHandler(error.message, 500));
+        }
       }
     } catch (error) {
       return next(new ErrorHandler(error.message, 500));
@@ -190,7 +194,7 @@ router.put(
   "/change-shop-password",
   catchAsyncErrors(async (req, res, next) => {
     try {
- 
+
       const shop = await Shop.findById(req.body.id);
 
       shop.password = req.body.password;
@@ -358,6 +362,36 @@ router.delete(
         return next(
           new ErrorHandler("Seller is not available with this id", 400)
         );
+      }
+
+      const ObjectId = mongoose.Types.ObjectId;
+      const productShops = await Product.find().select("shopId");
+      if (productShops.length > 0) {
+        productShops.forEach(async (product) => {
+          const productShopId = new ObjectId(product.shopId);
+          if (productShopId.equals(seller._id)) {
+            const coupounCodes = await CoupounCode.find().select("selectedProduct");
+            if (coupounCodes.length > 0) {
+              coupounCodes.forEach(async (code) => {
+                const selectedProductId = new ObjectId(code.selectedProduct);
+                if (selectedProductId.equals(product._id)) {
+                  await CoupounCode.findByIdAndDelete(code._id);
+                }
+              })
+            }
+            await Product.findByIdAndDelete(product._id);
+          }
+        });
+      }
+
+      const eventShops = await Event.find().select("shopId");
+      if (eventShops.length > 0) {
+        eventShops.forEach(async (event) => {
+          const eventShopId = new ObjectId(event.shopId);
+          if (eventShopId.equals(seller._id)) {
+            await Event.findByIdAndDelete(event._id);
+          }
+        });
       }
 
       await Shop.findByIdAndDelete(req.params.id);

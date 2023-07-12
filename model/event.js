@@ -21,13 +21,11 @@ const eventSchema = new mongoose.Schema({
         type: Date,
         required: true,
       },
-      status: {
-        type: String,
-        default: "Running",
-      },
-    tags:{
-        type: String,
-    },
+      properties: [
+        {
+          type: Object,
+        },
+      ],
     originalPrice:{
         type: Number,
     },

@@ -13,9 +13,11 @@ const productSchema = new mongoose.Schema({
     type: String,
     required: [true, "Please enter your product category!"],
   },
-  tags: {
-    type: String,
-  },
+  properties: [
+    {
+      type: Object,
+    },
+  ],
   originalPrice: {
     type: Number,
   },
@@ -25,6 +27,7 @@ const productSchema = new mongoose.Schema({
   },
   stock: {
     type: Number,
+    default: 1,
     required: [true, "Please enter your product stock!"],
   },
   images: [
@@ -46,7 +49,7 @@ const productSchema = new mongoose.Schema({
       productId: {
         type: String,
       },
-      createdAt:{
+      createdAt: {
         type: Date,
         default: Date.now(),
       }

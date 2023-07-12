@@ -1,4 +1,7 @@
 const mongoose = require("mongoose");
+const Product = require("./product");
+const Event = require("./event");
+const Withdraw = require("./withdraw");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
@@ -80,6 +83,47 @@ shopSchema.pre("save", async function (next) {
     next();
   }
   this.password = await bcrypt.hash(this.password, 10);
+});
+
+shopSchema.post(["save", "findOneAndUpdate", "findByIdAndUpdate"], async function (doc, next) {
+  const shop = doc;
+  try {
+    const productShops = await Product.find().select("shop");
+
+    const ObjectId = mongoose.Types.ObjectId;
+
+    productShops.forEach((product) => {
+      if (product.shop._id.equals(shop._id)) {
+        product.shop = shop;
+      }
+    });
+
+    await Promise.all(productShops.map((product) => product.save()));
+
+    const eventShops = await Event.find().select("shop");
+
+    eventShops.forEach((event) => {
+      if (event.shop._id.equals(shop._id)) {
+        event.shop = shop;
+      }
+    });
+
+    await Promise.all(eventShops.map((event) => event.save()));
+
+    const withdrawShops = await Withdraw.find().select("seller");
+
+    withdrawShops.forEach((withdraw) => {
+      if (withdraw.seller._id.equals(shop._id)) {
+        withdraw.seller = shop;
+      }
+    });
+
+    await Promise.all(withdrawShops.map((withdraw) => withdraw.save()));
+    next();
+  }
+  catch (error) {
+    next(error);
+  }
 });
 
 // jwt token

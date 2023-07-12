@@ -7,6 +7,7 @@ const Order = require("../model/order");
 const Shop = require("../model/shop");
 const Event = require("../model/event");
 const Product = require("../model/product");
+const sendMail = require("../utils/sendMail");
 
 // create new order
 router.post(
@@ -14,6 +15,8 @@ router.post(
   catchAsyncErrors(async (req, res, next) => {
     try {
       const { cart, shippingAddress, user, totalPrice, paymentInfo } = req.body;
+
+      console.log(user);
 
       //   group cart items by shopId
       const shopItemsMap = new Map();
@@ -30,6 +33,16 @@ router.post(
       const orders = [];
 
       for (const [shopId, items] of shopItemsMap) {
+        const seller = await Shop.findById(shopId);
+        try {
+          await sendMail({
+            email: seller.email,
+            subject: "New Order",
+            message: `Hello ${seller.name}, You have a new pending order! `,
+          });
+        } catch (error) {
+          return next(new ErrorHandler(error.message, 500));
+        }
         const order = await Order.create({
           cart: items,
           shippingAddress,
@@ -103,8 +116,8 @@ router.put(
       }
       if (req.body.status === "Transferred to delivery partner") {
         order.cart.forEach(async (o) => {
-          o.Finish_Date !== null && o.status === "Running" ? await updateEvent(o._id, o.qty)
-          : await updateOrder(o._id, o.qty);
+          o.Finish_Date !== null && o.start_Date !== null ? await updateEvent(o._id, o.qty)
+            : await updateOrder(o._id, o.qty);
         });
       }
 
@@ -131,20 +144,20 @@ router.put(
         product.sold_out += qty;
 
         await product.save({ validateBeforeSave: false });
-      } 
+      }
 
-     async function updateEvent(id, qty) {
+      async function updateEvent(id, qty) {
         const product = await Event.findById(id);
 
         product.stock -= qty;
         product.sold_out += qty;
 
         await product.save({ validateBeforeSave: false });
-      } 
+      }
 
       async function updateSellerInfo(amount) {
         const seller = await Shop.findById(req.seller.id);
-        
+
         seller.availableBalance = amount;
 
         await seller.save();
@@ -204,15 +217,15 @@ router.put(
 
       if (req.body.status === "Refund Success") {
         order.cart.forEach(async (o) => {
-          o.Finish_Date !== null && o.status === "Running" ? await updateEvent(o._id, o.qty)
-          : await updateOrder(o._id, o.qty);
+          o.Finish_Date !== null && o.start_Date !== null ? await updateEvent(o._id, o.qty)
+            : await updateOrder(o._id, o.qty);
         });
       }
 
-       if (req.body.status === "Refund Denied") {
+      if (req.body.status === "Refund Denied") {
         order.cart.forEach(async (o) => {
-          o.Finish_Date !== null && o.status === "Running" ? await updateEventDenied(o._id, o.qty)
-          : await updateOrderDenied(o._id, o.qty);
+          o.Finish_Date !== null && o.start_Date !== null ? await updateEventDenied(o._id, o.qty)
+            : await updateOrderDenied(o._id, o.qty);
         });
       }
 

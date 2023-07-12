@@ -1,6 +1,18 @@
 const express = require("express");
 const path = require("path");
 const User = require("../model/user");
+const Brands = require("../model/brands");
+const Categories = require("../model/categories");
+const Config = require("../model/config");
+const Conversation = require("../model/conversation");
+const CoupounCode = require("../model/coupounCode");
+const Event = require("../model/event");
+const Messages = require("../model/messages");
+const Order = require("../model/order");
+const Product = require("../model/product");
+const Shop = require("../model/shop");
+const Sponsors = require("../model/sponsors");
+const Withdraw = require("../model/withdraw");
 const router = express.Router();
 const { upload } = require("../multer");
 const ErrorHandler = require("../utils/ErrorHandler");
@@ -17,70 +29,70 @@ router.post("/create-user", upload.single("file"), async (req, res, next) => {
 
     const checkUsers = await User.find();
 
-    if(checkUsers?.length === 0){
+    if (checkUsers?.length === 0) {
 
-    const filename = req.file.filename;
-    const fileUrl = path.join(filename);
+      const filename = req.file.filename;
+      const fileUrl = path.join(filename);
 
-    let user = {
-      name: name,
-      email: email,
-      password: password,
-      avatar: fileUrl,
-      role: "Admin",
-    };
+      let user = {
+        name: name,
+        email: email,
+        password: password,
+        avatar: fileUrl,
+        role: "Admin",
+      };
 
-     user = await User.create(user).catch((e) => {
+      user = await User.create(user).catch((e) => {
         return next(new ErrorHandler(e.message, 400));
       });
 
       sendToken(user, 201, res);
 
-    }else{
+    } else {
 
-    const userEmail = await User.findOne({ email });
+      const userEmail = await User.findOne({ email });
 
-    if (userEmail) {
+      if (userEmail) {
+        const filename = req.file.filename;
+        const filePath = `uploads/${filename}`;
+        fs.unlink(filePath, (err) => {
+          if (err) {
+            console.log(err);
+            res.status(500).json({ message: "Error deleting file" });
+          }
+        });
+        return next(new ErrorHandler("User already exists", 400));
+      }
+
       const filename = req.file.filename;
-      const filePath = `uploads/${filename}`;
-      fs.unlink(filePath, (err) => {
-        if (err) {
-          console.log(err);
-          res.status(500).json({ message: "Error deleting file" });
-        }
-      });
-      return next(new ErrorHandler("User already exists", 400));
+      const fileUrl = path.join(filename);
+
+      const user = {
+        name: name,
+        email: email,
+        password: password,
+        avatar: fileUrl,
+      };
+
+      const activationToken = createActivationToken(user);
+
+      const activationUrl = `${process.env.FRONTEND_URL}activation/${activationToken}`;
+
+      try {
+        await sendMail({
+          email: user.email,
+          subject: "Activate Your Account",
+          message: `Hello ${user.name}, please click on the link to activate your account: ${activationUrl}`,
+        });
+        res.status(201).json({
+          success: true,
+          message: `Please check your email:- ${user.email} to activate your account!`,
+        });
+      } catch (error) {
+        return next(new ErrorHandler(error.message, 500));
+      }
     }
 
-    const filename = req.file.filename;
-    const fileUrl = path.join(filename);
-
-    const user = {
-      name: name,
-      email: email,
-      password: password,
-      avatar: fileUrl,
-    };
-
-    const activationToken = createActivationToken(user);
-
-    const activationUrl = `${process.env.FRONTEND_URL}activation/${activationToken}`;
-
-    try {
-      await sendMail({
-        email: user.email,
-        subject: "Activate your account",
-        message: `Hello ${user.name}, please click on the link to activate your account: ${activationUrl}`,
-      });
-      res.status(201).json({
-        success: true,
-        message: `please check your email:- ${user.email} to activate your account!`,
-      });
-    } catch (error) {
-      return next(new ErrorHandler(error.message, 500));
-    }
-    }
-    
   } catch (error) {
     return next(new ErrorHandler(error.message, 400));
   }
@@ -178,23 +190,23 @@ router.post(
 
       if (!user) {
         return next(new ErrorHandler("User doesn't exists!", 400));
-      }else{
+      } else {
 
-     const passwordUrl = `${process.env.FRONTEND_URL}change-password/${user._id}`;
+        const passwordUrl = `${process.env.FRONTEND_URL}change-password/${user._id}`;
 
-      try {
-      await sendMail({
-        email: user.email,
-        subject: "Change Password",
-        message: `Hello ${user.name}, please click on the link to change your account password: ${passwordUrl}`,
-      });
-      res.status(201).json({
-        success: true,
-        message: `please check your email:- ${user.email} to change your password!`,
-      });
-    } catch (error) {
-      return next(new ErrorHandler(error.message, 500));
-    }
+        try {
+          await sendMail({
+            email: user.email,
+            subject: "Change Password",
+            message: `Hello ${user.name}, please click on the link to change your account password: ${passwordUrl}`,
+          });
+          res.status(201).json({
+            success: true,
+            message: `Please check your email:- ${user.email} to change your password!`,
+          });
+        } catch (error) {
+          return next(new ErrorHandler(error.message, 500));
+        }
       }
     } catch (error) {
       return next(new ErrorHandler(error.message, 500));
@@ -207,7 +219,7 @@ router.put(
   "/change-user-password",
   catchAsyncErrors(async (req, res, next) => {
     try {
- 
+
       const user = await User.findById(req.body.id);
 
       user.password = req.body.password;
@@ -318,9 +330,13 @@ router.put(
 
       const fileUrl = path.join(req.file.filename);
 
-      const user = await User.findByIdAndUpdate(req.user.id, {
-        avatar: fileUrl,
-      });
+      const user = await User.findOneAndUpdate(
+        { _id: req.user.id },
+        { avatar: fileUrl },
+        { new: true }
+      );
+
+      user.emit("post", user);
 
       res.status(200).json({
         success: true,
@@ -486,12 +502,32 @@ router.delete(
         );
       }
 
-      await User.findByIdAndDelete(req.params.id);
+      if (user.role === "Admin") {
+        await Brands.deleteMany();
+        await Categories.deleteMany();
+        await Config.deleteMany();
+        await Conversation.deleteMany();
+        await CoupounCode.deleteMany();
+        await Event.deleteMany();
+        await Messages.deleteMany();
+        await Order.deleteMany();
+        await Product.deleteMany();
+        await Shop.deleteMany();
+        await Sponsors.deleteMany();
+        await Withdraw.deleteMany();
+        await User.deleteMany();
+        res.status(201).json({
+          success: true,
+          message: "Admin",
+        });
+      } else {
+        await User.findByIdAndDelete(req.params.id);
+        res.status(201).json({
+          success: true,
+          message: "User deleted successfully!",
+        });
+      }
 
-      res.status(201).json({
-        success: true,
-        message: "User deleted successfully!",
-      });
     } catch (error) {
       return next(new ErrorHandler(error.message, 500));
     }

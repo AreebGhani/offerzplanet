@@ -1,6 +1,5 @@
 const express = require("express");
 const catchAsyncErrors = require("../middleware/catchAsyncErrors");
-const Shop = require("../model/shop");
 const ErrorHandler = require("../utils/ErrorHandler");
 const { isSeller } = require("../middleware/auth");
 const CoupounCode = require("../model/coupounCode");
@@ -42,6 +41,38 @@ router.get(
       res.status(201).json({
         success: true,
         couponCodes,
+      });
+    } catch (error) {
+      return next(new ErrorHandler(error, 400));
+    }
+  })
+);
+
+// update coupoun code
+router.put(
+  "/update-coupon-code/:id",
+  isSeller,
+  catchAsyncErrors(async (req, res, next) => {
+    try {
+
+      const { name, value, minAmount, maxAmount, shopId, selectedProduct } = req.body;
+
+      const coupounCode = await CoupounCode.findOneAndUpdate(
+        { _id: req.params.id },
+        {
+          name: name,
+          value: value,
+          minAmount: minAmount,
+          maxAmount: maxAmount,
+          shopId: shopId,
+          selectedProduct: selectedProduct,
+        },
+        { new: true }
+      );
+
+      res.status(201).json({
+        success: true,
+        coupounCode,
       });
     } catch (error) {
       return next(new ErrorHandler(error, 400));

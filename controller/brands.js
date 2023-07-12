@@ -49,6 +49,74 @@ router.post("/create-brand",
     }
 );
 
+// update brand name
+router.put("/update-brand",
+    isAuthenticated,
+    isAdmin("Admin"),
+    upload.none(),
+    async (req, res, next) => {
+        try {
+            const { _id, name } = req.body;
+
+            const brands = await Brands.findOneAndUpdate(
+                { _id: _id },
+                { name: name },
+                { new: true }
+            );
+
+            res.status(201).json({
+                success: true,
+                brands,
+            });
+        } catch (error) {
+            console.log(error);
+            return next(new ErrorHandler(error.response.message), 500);
+        }
+    }
+);
+
+// update brand image
+router.put("/update-brand-image",
+    isAuthenticated,
+    isAdmin("Admin"),
+    upload.single("image"),
+    async (req, res, next) => {
+        try {
+            const { _id, name } = req.body;
+
+            const isBrandExist = await Brands.findOne({ _id });
+            if (isBrandExist) {
+                const filename = isBrandExist.image;
+                const filePath = `uploads/${filename}`;
+                fs.unlink(filePath, (err) => {
+                    if (err) {
+                        console.log(err);
+                        res.status(500).json({ message: "Error deleting file" });
+                    }
+                });
+            }
+
+            const filename = req.file.filename;
+            const brands = await Brands.findOneAndUpdate(
+                { _id: _id },
+                {
+                    name: name,
+                    image: filename,
+                },
+                { new: true }
+            );
+
+            res.status(201).json({
+                success: true,
+                brands,
+            });
+        } catch (error) {
+            console.log(error);
+            return next(new ErrorHandler(error.response.message), 500);
+        }
+    }
+);
+
 // get brands
 router.get(
     "/get-all-brands",

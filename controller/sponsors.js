@@ -69,6 +69,82 @@ router.get(
     })
 );
 
+// update sponsor name
+router.put("/update-sponsor",
+    isAuthenticated,
+    isAdmin("Admin"),
+    upload.none(),
+    async (req, res, next) => {
+        try {
+            const { _id, title, description, buttonText, buttonLink } = req.body;
+
+            const sponsor = await Sponsors.findOneAndUpdate(
+                { _id: _id },
+                {
+                    title: title,
+                    description: description,
+                    buttonText: buttonText,
+                    buttonLink: buttonLink
+                },
+                { new: true }
+            );
+
+            res.status(201).json({
+                success: true,
+                sponsor,
+            });
+        } catch (error) {
+            console.log(error);
+            return next(new ErrorHandler(error.response.message), 500);
+        }
+    }
+);
+
+// update sponsor image
+router.put("/update-sponsor-image",
+    isAuthenticated,
+    isAdmin("Admin"),
+    upload.single("image"),
+    async (req, res, next) => {
+        try {
+            const { _id, title, description, buttonText, buttonLink } = req.body;
+
+            const isSponsorExist = await Sponsors.findOne({ _id });
+            if (isSponsorExist) {
+                const filename = isSponsorExist.image;
+                const filePath = `uploads/${filename}`;
+                fs.unlink(filePath, (err) => {
+                    if (err) {
+                        console.log(err);
+                        res.status(500).json({ message: "Error deleting file" });
+                    }
+                });
+            }
+
+            const filename = req.file.filename;
+            const sponsors = await Sponsors.findOneAndUpdate(
+                { _id: _id },
+                {
+                    title: title,
+                    description: description,
+                    buttonText: buttonText,
+                    buttonLink: buttonLink,
+                    image: filename,
+                },
+                { new: true }
+            );
+
+            res.status(201).json({
+                success: true,
+                sponsors,
+            });
+        } catch (error) {
+            console.log(error);
+            return next(new ErrorHandler(error.response.message), 500);
+        }
+    }
+);
+
 // delete sponsor
 router.delete(
     "/delete-sponsor/:id",

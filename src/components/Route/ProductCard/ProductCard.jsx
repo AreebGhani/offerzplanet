@@ -1,11 +1,9 @@
 import React, { useState } from "react";
 import {
   AiFillHeart,
-  AiFillStar,
   AiOutlineEye,
   AiOutlineHeart,
   AiOutlineShoppingCart,
-  AiOutlineStar,
 } from "react-icons/ai";
 import { Link } from "react-router-dom";
 import { backend_url } from "../../../server";
@@ -34,7 +32,7 @@ const ProductCard = ({ data, isEvent }) => {
     } else {
       setClick(false);
     }
-  }, [wishlist]);
+  }, [wishlist, data._id]);
 
   const removeFromWishlistHandler = (data) => {
     setClick(!click);
@@ -54,7 +52,12 @@ const ProductCard = ({ data, isEvent }) => {
       if (data.stock < 1) {
         toast.error("Product stock limited!");
       } else {
-        const cartData = { ...data, qty: 1 };
+        const selectedProperties = data.properties.map(item => {
+          let p = JSON.parse(item);
+          let values = p.values.split(',').map(value => value.trim());
+          return { name: p.name, value: values[0] };
+        });
+        const cartData = { ...data, qty: 1, selectedProperties: selectedProperties };
         dispatch(addTocart(cartData));
         toast.success("Item added to cart successfully!");
       }
@@ -71,7 +74,7 @@ const ProductCard = ({ data, isEvent }) => {
             alt=""
             className="w-full h-[170px] object-contain border-none"
           />
-	  {data.stock < 1 && <span className="sold_out">Out Of Stock</span>}
+          {data.stock < 1 && <span className="sold_out">Out Of Stock</span>}
         </Link>
         <Link to={`/shop/preview/${data?.shop._id}`}>
           <h5 className={`${styles.shop_name}`}>{data.shop.name}</h5>
@@ -82,7 +85,7 @@ const ProductCard = ({ data, isEvent }) => {
           </h4>
 
           <div className="flex">
-          <Ratings rating={data?.ratings} />
+            <Ratings rating={data?.ratings} />
           </div>
 
           <div className="py-2 flex items-center justify-between">

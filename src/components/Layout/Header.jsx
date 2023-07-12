@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import styles from "../../styles/styles";
 import {
@@ -33,6 +33,34 @@ const Header = ({ activeHeading }) => {
   const [openCart, setOpenCart] = useState(false);
   const [openWishlist, setOpenWishlist] = useState(false);
   const [open, setOpen] = useState(false);
+  const [navbarHeight, setNavbarHeight] = useState(0);
+
+  const navbarRef = useRef(null);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (navbarRef.current) {
+        setNavbarHeight(navbarRef.current.clientHeight);
+      }
+      if (window.scrollY > 70) {
+        setActive(true);
+      } else {
+        setActive(false);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
+
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(getAllCategories());
+  }, [dispatch]);
 
   const handleSearchChange = (e) => {
     const term = e.target.value;
@@ -46,20 +74,6 @@ const Header = ({ activeHeading }) => {
     setSearchData(filteredProducts);
   };
 
-  window.addEventListener("scroll", () => {
-    if (window.scrollY > 70) {
-      setActive(true);
-    } else {
-      setActive(false);
-    }
-  });
-
-  const dispatch = useDispatch();
-
-  useEffect(() => {
-    dispatch(getAllCategories());
-  }, [dispatch]);
-
   return (
     <>
       <div className={`${styles.section}`}>
@@ -67,7 +81,7 @@ const Header = ({ activeHeading }) => {
           <div className="w-1/4">
             <Link to="/">
               <img
-		className="object-contain"
+                className="object-contain"
                 src={logo}
                 alt=""
               />
@@ -107,17 +121,19 @@ const Header = ({ activeHeading }) => {
             ) : null}
           </div>
 
-          <div className={`${styles.button}`}>
-            <Link to={`${isSeller ? "/dashboard" : "/shop-login"}`}>
+          <Link to={`${isSeller ? "/dashboard" : "/shop-login"}`}>
+            <div className={`${styles.button}`}>
               <h1 className="text-[#fff] flex items-center">
                 {isSeller ? "Go Dashboard" : "Login As Seller"}{" "}
                 <IoIosArrowForward className="ml-1" />
               </h1>
-            </Link>
-          </div>
+            </div>
+          </Link>
         </div>
       </div>
+      {active && <div className={`h-[${navbarHeight}px]`} />}
       <div
+        ref={navbarRef}
         className={`${active === true ? "shadow-sm fixed top-0 left-0 z-10" : null
           } transition hidden 800px:flex items-center justify-between w-full bg-[#ec1c2c] h-[70px]`}
       >
@@ -225,7 +241,6 @@ const Header = ({ activeHeading }) => {
           <div className="w-1/4">
             <Link to="/">
               <img
-		className="object-contain"
                 src={logo}
                 alt=""
                 className="mt-3 cursor-pointer"
@@ -263,7 +278,7 @@ const Header = ({ activeHeading }) => {
                     onClick={() => setOpenWishlist(true) || setOpen(false)}
                   >
                     <AiOutlineHeart size={30} className="mt-5 ml-3" />
-                    <span class="absolute right-0 top-0 rounded-full bg-[#3bc177] w-4 h-4 top right p-0 m-0 text-white font-mono text-[12px]  leading-tight text-center">
+                    <span className="absolute right-0 top-0 rounded-full bg-[#3bc177] w-4 h-4 top right p-0 m-0 text-white font-mono text-[12px]  leading-tight text-center">
                       {wishlist && wishlist.length}
                     </span>
                   </div>
@@ -350,6 +365,7 @@ const Header = ({ activeHeading }) => {
           </div>
         )}
       </div>
+      {active && <div className={`p-[${navbarHeight}px]`} />}
     </>
   );
 };

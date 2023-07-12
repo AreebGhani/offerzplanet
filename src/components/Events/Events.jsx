@@ -2,46 +2,40 @@ import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import styles from '../../styles/styles';
 import EventCard from "./EventCard";
-import Loader from "../Layout/Loader";
 import { getAllEvents } from "../../redux/actions/event";
 
 const Events = () => {
   const dispatch = useDispatch();
 
-  useEffect(()=> {
+  useEffect(() => {
     dispatch(getAllEvents);
   }, [dispatch]);
 
-  const { allEvents, isLoading } = useSelector((state) => state.events);
-
-  if (isLoading) {
-    return <Loader />;
-  }
+  const { allEvents } = useSelector((state) => state.events);
 
   return (
-    <div>
-      {
-        !isLoading && (
-          <div className={`${styles.section}`}>
-            <div className={`${styles.heading}`}>
-              <h1>Popular Events</h1>
-            </div>
-
-            <div className="w-full grid">
-              {
-                allEvents?.length === 0 ? (
-                  <h4>No Events available!</h4>
-                ) : (
-                  allEvents.length !== 0 && allEvents?.map((data, index) => {
-                    return (<EventCard key={index} data={data} />)
-                  })
-                )
+    <div className={`${styles.section}`}>
+      <div className={`${styles.heading}`}>
+        <h1>Popular Events</h1>
+      </div>
+      <div className="w-full grid">
+        {
+          allEvents?.length === 0 ? (
+            <h4>No Events available!</h4>
+          ) : (
+            allEvents?.length !== 0 && allEvents?.map((data, index) => {
+              const { start_Date, Finish_Date } = data;
+              const currentDate = new Date();
+              const isActive = currentDate >= new Date(start_Date) && currentDate <= new Date(Finish_Date);
+              if (isActive) {
+                return (<EventCard key={index} data={data} />)
+              } else {
+                return "";
               }
-            </div>
-
-          </div>
-        )
-      }
+            })
+          )
+        }
+      </div>
     </div>
   );
 }

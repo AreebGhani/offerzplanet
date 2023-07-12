@@ -9,7 +9,7 @@ import Ratings from "../Products/Ratings";
 import { getAllEventsShop } from "../../redux/actions/event";
 
 const ShopProfileData = ({ isOwner }) => {
-  const { products } = useSelector((state) => state.products);
+  const { products, isLoading } = useSelector((state) => state.products);
   const { events } = useSelector((state) => state.events);
   const { id } = useParams();
   const dispatch = useDispatch();
@@ -17,12 +17,20 @@ const ShopProfileData = ({ isOwner }) => {
   useEffect(() => {
     dispatch(getAllProductsShop(id));
     dispatch(getAllEventsShop(id));
-  }, [dispatch]);
+  }, [dispatch, id]);
 
   const [active, setActive] = useState(1);
 
   const allReviews =
     products && products.map((product) => product.reviews).flat();
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center w-full h-screen">
+        <div className="rounded-full border-t-4 border-b-4 border-red-600 h-20 w-20 animate-spin"></div>
+      </div>
+    )
+  }
 
   return (
     <div className="w-full">
@@ -30,18 +38,16 @@ const ShopProfileData = ({ isOwner }) => {
         <div className="w-full flex">
           <div className="flex items-center" onClick={() => setActive(1)}>
             <h5
-              className={`font-[600] text-[20px] ${
-                active === 1 ? "text-red-500" : "text-[#333]"
-              } cursor-pointer pr-[20px]`}
+              className={`font-[600] text-[20px] ${active === 1 ? "text-red-500" : "text-[#333]"
+                } cursor-pointer pr-[20px]`}
             >
               Shop Products
             </h5>
           </div>
           <div className="flex items-center" onClick={() => setActive(2)}>
             <h5
-              className={`font-[600] text-[20px] ${
-                active === 2 ? "text-red-500" : "text-[#333]"
-              } cursor-pointer pr-[20px]`}
+              className={`font-[600] text-[20px] ${active === 2 ? "text-red-500" : "text-[#333]"
+                } cursor-pointer pr-[20px]`}
             >
               Running Events
             </h5>
@@ -49,9 +55,8 @@ const ShopProfileData = ({ isOwner }) => {
 
           <div className="flex items-center" onClick={() => setActive(3)}>
             <h5
-              className={`font-[600] text-[20px] ${
-                active === 3 ? "text-red-500" : "text-[#333]"
-              } cursor-pointer pr-[20px]`}
+              className={`font-[600] text-[20px] ${active === 3 ? "text-red-500" : "text-[#333]"
+                } cursor-pointer pr-[20px]`}
             >
               Shop Reviews
             </h5>
@@ -72,12 +77,19 @@ const ShopProfileData = ({ isOwner }) => {
 
       <br />
       {active === 1 && (
-        <div className="grid grid-cols-1 gap-[20px] md:grid-cols-2 md:gap-[25px] lg:grid-cols-3 lg:gap-[25px] xl:grid-cols-4 xl:gap-[20px] mb-12 border-0">
-          {products &&
-            products.map((i, index) => (
-              <ProductCard data={i} key={index} isShop={true} />
-            ))}
-        </div>
+        <>
+          <div className="grid grid-cols-1 gap-[20px] md:grid-cols-2 md:gap-[25px] lg:grid-cols-3 lg:gap-[25px] xl:grid-cols-4 xl:gap-[20px] mb-12 border-0">
+            {products &&
+              products.map((i, index) => (
+                <ProductCard data={i} key={index} isShop={true} />
+              ))}
+          </div>
+          {products && products.length === 0 && (
+            <h5 className="w-full text-center py-5 text-[18px]">
+              No Products have for this shop!
+            </h5>
+          )}
+        </>
       )}
 
       {active === 2 && (
@@ -122,7 +134,7 @@ const ShopProfileData = ({ isOwner }) => {
               </div>
             ))}
           {allReviews && allReviews.length === 0 && (
-            <h5 className="w-full text-center py-5 text-[18px]">
+            <h5 className="w-full text-center py-5 text-[18px] mt-12">
               No Reviews have for this shop!
             </h5>
           )}

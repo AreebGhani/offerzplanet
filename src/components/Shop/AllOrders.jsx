@@ -3,7 +3,6 @@ import { DataGrid } from "@material-ui/data-grid";
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import Loader from "../Layout/Loader";
 import RenderExpandableCell from "../Layout/RenderExpandableCell";
 import { getAllOrdersOfShop } from "../../redux/actions/order";
 import { AiOutlineArrowRight } from "react-icons/ai";
@@ -16,7 +15,7 @@ const AllOrders = () => {
 
   useEffect(() => {
     dispatch(getAllOrdersOfShop(seller._id));
-  }, [dispatch]);
+  }, [dispatch, seller._id]);
 
   const columns = [
     {
@@ -92,22 +91,24 @@ const AllOrders = () => {
       });
     });
 
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center w-full h-screen">
+        <div className="rounded-full border-t-4 border-b-4 border-red-600 h-20 w-20 animate-spin"></div>
+      </div>
+    )
+  }
+
   return (
-    <>
-      {isLoading ? (
-        <Loader />
-      ) : (
-        <div className="w-full mx-8 pt-1 mt-10 bg-white">
-          <DataGrid
-            rows={row}
-            columns={columns}
-            pageSize={8}
-            disableSelectionOnClick
-            autoHeight
-          />
-        </div>
-      )}
-    </>
+    <div className="w-full mx-8 pt-1 mt-10 bg-white">
+      <DataGrid
+        rows={row}
+        columns={columns}
+        pageSize={8}
+        disableSelectionOnClick
+        autoHeight
+      />
+    </div>
   );
 };
 

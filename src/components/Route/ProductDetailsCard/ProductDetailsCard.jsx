@@ -23,9 +23,9 @@ const ProductDetailsCard = ({ setOpen, data }) => {
   const dispatch = useDispatch();
   const [count, setCount] = useState(1);
   const [click, setClick] = useState(false);
-  //   const [select, setSelect] = useState(false);
+  const [productProperties, setProductProperties] = useState([]);
 
-  const handleMessageSubmit = () => {};
+  const handleMessageSubmit = () => { };
 
   const decrementCount = () => {
     if (count > 1) {
@@ -47,9 +47,18 @@ const ProductDetailsCard = ({ setOpen, data }) => {
       if (data.stock < count) {
         toast.error("Product stock limited!");
       } else {
-        const cartData = { ...data, qty: count };
-        dispatch(addTocart(cartData));
-        toast.success("Item added to cart successfully!");
+        const areAllPropertiesSelected = data.properties.every(props => {
+          const p = JSON.parse(props);
+          const property = productProperties.find(prop => prop.name === p.name);
+          return property && property.value !== '';
+        });
+        if (!areAllPropertiesSelected) {
+          toast.error("Please select product properties!");
+        } else {
+          const cartData = { ...data, qty: count, selectedProperties: productProperties };
+          dispatch(addTocart(cartData));
+          toast.success("Item added to cart successfully!");
+        }
       }
     }
   };
@@ -60,7 +69,7 @@ const ProductDetailsCard = ({ setOpen, data }) => {
     } else {
       setClick(false);
     }
-  }, [wishlist]);
+  }, [wishlist, data._id]);
 
   const removeFromWishlistHandler = (data) => {
     setClick(!click);
@@ -71,6 +80,29 @@ const ProductDetailsCard = ({ setOpen, data }) => {
     setClick(!click);
     dispatch(addToWishlist(data));
   };
+
+  function setProductProp(propName, value) {
+    const existingProperty = productProperties.find(prop => prop.name === propName);
+    if (existingProperty) {
+      setProductProperties(prev => {
+        const updatedProperties = prev.map(prop => {
+          if (prop.name === propName) {
+            return { ...prop, value: value };
+          }
+          return prop;
+        });
+        return updatedProperties;
+      });
+    } else {
+      setProductProperties(prev => ([
+        ...prev,
+        {
+          name: propName,
+          value: value
+        }
+      ]));
+    }
+  }
 
   return (
     <div className="bg-[#fff] cursor-default">
@@ -88,30 +120,33 @@ const ProductDetailsCard = ({ setOpen, data }) => {
                 <img
                   src={`${backend_url}${data.images && data.images[0]}`}
                   alt=""
-		  className="p-10"
+                  className="p-10"
                 />
-                <div className="flex ml-5">
-                  <Link to={`/shop/preview/${data.shop._id}`} className="flex">
-                    <img
-                      src={`${backend_url}${data?.shop?.avatar}`}
-                      alt=""
-                      className="w-[50px] h-[50px] rounded-full mr-2"
-                    />
-                    <div>
-                      <h3 className={`${styles.shop_name}`}>
-                        {data.shop.name}
-                      </h3>
-                      <h5 className="pb-3 text-[15px]">(4.5) Ratings</h5>
+                <div className="flex flex-col justify-start pt-8 ml-5">
+                  <div>
+                    <div className="flex item-center">
+                      <Link to={`/shop/preview/${data?.shop._id}`}>
+                        <img
+                          src={`${backend_url}${data?.shop?.avatar}`}
+                          alt=""
+                          className="w-[50px] h-[50px] rounded-full mr-2"
+                        />
+                      </Link>
+                      <Link to={`/shop/preview/${data?.shop._id}`}>
+                        <h3 className={`${styles.shop_name} pb-1 pt-1`}>
+                          {data.shop.name}
+                        </h3>
+                      </Link>
                     </div>
-                  </Link>
-                </div>
-                <div
-                  className={`${styles.button} bg-[#000] ml-5 mt-4 rounded-[4px] h-11`}
-                  onClick={handleMessageSubmit}
-                >
-                  <span className="text-[#fff] flex items-center">
-                    Send Message <AiOutlineMessage className="ml-1" />
-                  </span>
+                  </div>
+                  <div
+                    className={`${styles.button} bg-[#6443d1] mt-4 !rounded !h-11`}
+                    onClick={handleMessageSubmit}
+                  >
+                    <span className="text-white flex items-center">
+                      Send Message <AiOutlineMessage className="ml-1" />
+                    </span>
+                  </div>
                 </div>
                 <h5 className="text-[16px] text-[red] ml-5 mt-5">({data.sold_out}) Sold out</h5>
               </div>
@@ -130,8 +165,31 @@ const ProductDetailsCard = ({ setOpen, data }) => {
                     {data.originalPrice ? data.originalPrice : null}
                   </h3>
                 </div>
-                <div className="flex items-center mt-12 justify-between pr-3">
-		  {
+                <div className="mt-7 capitalize text-center">
+                  {data.properties.length !== 0 && data.properties.map((props, index) => {
+                    let p = JSON.parse(props);
+                    let values = p.values.trim().split(/[ ,]+/);
+                    return (
+                      <div key={index} className="flex items-center justify-start gap-5 my-3">
+                        <label>{p.name}: </label>
+                        <div>
+                          <select
+                            value={productProperties.find(prop => prop.name === p.name)?.value}
+                            onChange={ev => setProductProp(p.name, ev.target.value)}
+                            className="capitalize borderh-[35px] rounded-[5px]"
+                          >
+                            <option value="">Choose {p.name}</option>
+                            {values?.map((v, i) => (
+                              <option key={i} value={v}>{v}</option>
+                            ))}
+                          </select>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+                <div className="flex items-center mt-5 justify-between pr-3">
+                  {
                     data.stock > 0 ?
                       <div>
                         <button
@@ -171,8 +229,8 @@ const ProductDetailsCard = ({ setOpen, data }) => {
                     )}
                   </div>
                 </div>
-               <div
-                  className={`${styles.button} !mt-6 !rounded !h-11 flex items-center ${data.stock < 1 && "!cursor-not-allowed !bg-[darkgray]"}`}           
+                <div
+                  className={`${styles.button} !mt-6 !rounded !h-11 flex items-center ${data.stock < 1 && "!cursor-not-allowed !bg-[darkgray]"}`}
                   onClick={() => data.stock > 0 && addToCartHandler(data._id)}
                 >
                   <span className="text-white flex items-center">

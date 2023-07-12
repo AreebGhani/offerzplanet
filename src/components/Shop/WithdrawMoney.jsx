@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getAllOrdersOfShop } from "../../redux/actions/order";
 import styles from "../../styles/styles";
 import { RxCross1 } from "react-icons/rx";
 import axios from "axios";
@@ -12,7 +11,7 @@ import { AiOutlineDelete } from "react-icons/ai";
 const WithdrawMoney = () => {
   const [open, setOpen] = useState(false);
   const dispatch = useDispatch();
-  const { seller } = useSelector((state) => state.seller);
+  const { seller, isLoading } = useSelector((state) => state.seller);
   const [paymentMethod, setPaymentMethod] = useState(false);
   const [withdrawAmount, setWithdrawAmount] = useState(500);
   const [loading, setLoading] = useState(false);
@@ -24,10 +23,6 @@ const WithdrawMoney = () => {
     bankHolderName: "",
     bankAddress: "",
   });
-
-  useEffect(() => {
-    dispatch(getAllOrdersOfShop(seller._id));
-  }, [dispatch]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -67,20 +62,22 @@ const WithdrawMoney = () => {
       })
       .catch((error) => {
         setLoading(false);
-        console.log(error.response.data.message);
       });
   };
 
   const deleteHandler = async () => {
-    await axios
-      .delete(`${server}/shop/delete-withdraw-method`, {
-        withCredentials: true,
-      })
-      .then((res) => {
-        toast.success("Withdraw method deleted successfully!");
-        dispatch(loadSeller());
-        window.location.reload();
-      });
+    let e = window.confirm("Do you want to Delete it?");
+    if (e) {
+      await axios
+        .delete(`${server}/shop/delete-withdraw-method`, {
+          withCredentials: true,
+        })
+        .then((res) => {
+          toast.success("Withdraw method deleted successfully!");
+          dispatch(loadSeller());
+          window.location.reload();
+        });
+    }
   };
 
   const error = () => {
@@ -110,6 +107,14 @@ const WithdrawMoney = () => {
 
   const availableBalance = seller?.availableBalance.toFixed(2);
 
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center w-full h-screen">
+        <div className="rounded-full border-t-4 border-b-4 border-red-600 h-20 w-20 animate-spin"></div>
+      </div>
+    )
+  }
+
   return (
     <div className="w-full h-[90vh] p-8">
       <div className="w-full bg-white h-full rounded flex items-center justify-center flex-col">
@@ -126,9 +131,8 @@ const WithdrawMoney = () => {
       {open && (
         <div className="w-full h-screen z-[9999] fixed top-0 left-0 flex items-center justify-center bg-[#0000004e]">
           <div
-            className={`w-[95%] 800px:w-[50%] bg-white shadow rounded ${
-              paymentMethod ? "h-[80vh] overflow-y-scroll" : "h-[unset]"
-            } min-h-[40vh] p-10`}
+            className={`w-[95%] 800px:w-[50%] bg-white shadow rounded ${paymentMethod ? "h-[80vh] overflow-y-scroll" : "h-[unset]"
+              } min-h-[40vh] p-10`}
           >
             <div className="w-full flex justify-end">
               <RxCross1

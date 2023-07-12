@@ -6,7 +6,6 @@ import { Link } from "react-router-dom";
 import axios from "axios";
 import { server } from "../../server";
 import { useState } from "react";
-import Loader from "../Layout/Loader";
 import RenderExpandableCell from "../Layout/RenderExpandableCell";
 
 const AllProducts = () => {
@@ -17,7 +16,7 @@ const AllProducts = () => {
     axios.get(`${server}/product/admin-all-products`, { withCredentials: true }).then((res) => {
       setData(res.data.products);
       setIsLoading(false);
-    })
+    }).catch((e) => setIsLoading(false))
   }, []);
 
   const columns = [
@@ -93,22 +92,24 @@ const AllProducts = () => {
       });
     });
 
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center w-full h-screen">
+        <div className="rounded-full border-t-4 border-b-4 border-red-600 h-20 w-20 animate-spin"></div>
+      </div>
+    )
+  }
+
   return (
-    <>
-      {isLoading ? (
-        <Loader />
-      ) : (
-        <div className="w-full mx-8 pt-1 mt-10 bg-white">
-          <DataGrid
-            rows={row}
-            columns={columns}
-            pageSize={8}
-            disableSelectionOnClick
-            autoHeight
-          />
-        </div>
-      )}
-    </>
+    <div className="w-full mx-8 pt-1 mt-10 bg-white">
+      <DataGrid
+        rows={row}
+        columns={columns}
+        pageSize={8}
+        disableSelectionOnClick
+        autoHeight
+      />
+    </div>
   );
 };
 

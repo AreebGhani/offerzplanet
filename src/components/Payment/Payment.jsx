@@ -19,6 +19,7 @@ import { RxCross1 } from "react-icons/rx";
 const Payment = () => {
   const [orderData, setOrderData] = useState([]);
   const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
   const { user } = useSelector((state) => state.user);
   const navigate = useNavigate();
   const stripe = useStripe();
@@ -34,7 +35,7 @@ const Payment = () => {
       .create({
         purchase_units: [
           {
-            description: "Sunflower",
+            description: "Offerzplanet",
             amount: {
               currency_code: "PKR",
               value: orderData?.totalPrice,
@@ -54,7 +55,7 @@ const Payment = () => {
   const order = {
     cart: orderData?.cart,
     shippingAddress: orderData?.shippingAddress,
-    user: user && user,
+    user: user && (user?.phoneNumber === undefined || user?.phoneNumber === "" || user?.phoneNumber === 0) ? { ...user, phoneNumber: orderData?.user?.phoneNumber } : user,
     totalPrice: orderData?.totalPrice,
   };
 
@@ -101,6 +102,7 @@ const Payment = () => {
 
   const paymentHandler = async (e) => {
     e.preventDefault();
+    setLoading(true);
     try {
       const config = {
         headers: {
@@ -116,7 +118,11 @@ const Payment = () => {
 
       const client_secret = data.client_secret;
 
-      if (!stripe || !elements) return;
+      if (!stripe || !elements) {
+        setLoading(false);
+        return;
+      }
+
       const result = await stripe.confirmCardPayment(client_secret, {
         payment_method: {
           card: elements.getElement(CardNumberElement),
@@ -124,6 +130,7 @@ const Payment = () => {
       });
 
       if (result.error) {
+        setLoading(false);
         toast.error(result.error.message);
       } else {
         if (result.paymentIntent.status === "succeeded") {
@@ -136,6 +143,7 @@ const Payment = () => {
           await axios
             .post(`${server}/order/create-order`, order, config)
             .then((res) => {
+              setLoading(false);
               setOpen(false);
               navigate("/order/success");
               toast.success("Order successful!");
@@ -146,6 +154,7 @@ const Payment = () => {
         }
       }
     } catch (error) {
+      setLoading(false);
       toast.error(error);
     }
   };
@@ -187,6 +196,7 @@ const Payment = () => {
             createOrder={createOrder}
             paymentHandler={paymentHandler}
             cashOnDeliveryHandler={cashOnDeliveryHandler}
+            loading={loading}
           />
         </div>
         <div className="w-full 800px:w-[35%] 800px:mt-0 mt-8">
@@ -205,9 +215,9 @@ const PaymentInfo = ({
   createOrder,
   paymentHandler,
   cashOnDeliveryHandler,
+  loading,
 }) => {
   const [select, setSelect] = useState(1);
-  const [loading, setLoading] = useState(false);
 
   return (
     <div className="w-full 800px:w-[95%] bg-[#fff] rounded-md p-5 pb-8">
@@ -238,6 +248,7 @@ const PaymentInfo = ({
                     required
                     placeholder={user && user.name}
                     className={`${styles.input} !w-[95%] !h-[3rem] text-[#444]`}
+                    readOnly
                     value={user && user.name}
                   />
                 </div>
@@ -315,7 +326,6 @@ const PaymentInfo = ({
                 type="submit"
                 value={loading ? "Loading..." : "Submit"}
                 className={`${styles.button} !bg-[#f63b60] text-[#fff] h-[45px] rounded-[5px] cursor-pointer text-[18px] font-[600]`}
-                onClick={() => setLoading(true)}
               />
             </form>
           </div>

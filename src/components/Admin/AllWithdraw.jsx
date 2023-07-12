@@ -6,30 +6,20 @@ import { BsPencil } from "react-icons/bs";
 import { RxCross1 } from "react-icons/rx";
 import styles from "../../styles/styles";
 import { toast } from "react-toastify";
-import Loader from "../Layout/Loader";
 import RenderExpandableCell from "../Layout/RenderExpandableCell";
 import { Button } from "@material-ui/core";
 import { AiOutlineEye } from "react-icons/ai";
-import { useDispatch, useSelector } from "react-redux";
-import { getAllSellers } from "../../redux/actions/sellers";
+import { useDispatch } from "react-redux";
 
 const AllWithdraw = () => {
-  const dispatch = useDispatch();
-  const { sellers } = useSelector((state) => state.seller);
   const [data, setData] = useState([]);
   const [open, setOpen] = useState(false);
   const [withdrawData, setWithdrawData] = useState();
   const [withdrawStatus, setWithdrawStatus] = useState('Processing');
-  const [isLoading, setIsLoading] = useState(true);
   const [loading, setLoading] = useState(false);
   const [openView, setOpenView] = useState(false);
   const [showDetails, setShowDetails] = useState(null);
-
-
-  useEffect(() => {
-    dispatch(getAllSellers());
-  }, [dispatch]);
-  
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     axios
@@ -37,22 +27,18 @@ const AllWithdraw = () => {
         withCredentials: true,
       })
       .then((res) => {
+        setIsLoading(false);
         setData(res.data.withdraws);
-        setIsLoading(false);
-      })
-      .catch((error) => {
-        setIsLoading(false);
-        console.log(error.response.data.message);
-      });
+      }).catch((e) => setIsLoading(false));
   }, []);
 
   const columns = [
     {
-     field: "id",
-     headerName: "Withdraw Id",
-     minWidth: 130,
-     flex: 0.8,
-     renderCell: params => <RenderExpandableCell {...params} />
+      field: "id",
+      headerName: "Withdraw Id",
+      minWidth: 130,
+      flex: 0.8,
+      renderCell: params => <RenderExpandableCell {...params} />
     },
     {
       field: "name",
@@ -102,7 +88,7 @@ const AllWithdraw = () => {
       field: "View Details",
       flex: 0.8,
       minWidth: 100,
-      headerName: "",
+      headerName: "view",
       type: "number",
       sortable: false,
       renderCell: (params) => {
@@ -167,81 +153,84 @@ const AllWithdraw = () => {
       });
     });
 
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center w-full h-screen">
+        <div className="rounded-full border-t-4 border-b-4 border-red-600 h-20 w-20 animate-spin"></div>
+      </div>
+    )
+  }
+
   return (
-    <>
-      {isLoading ? (
-        <Loader />
-      ) : (
-        <div className="w-full flex items-center pt-5 justify-center">
-          <div className="w-[95%] bg-white">
-            <DataGrid
-              rows={row}
-              columns={columns}
-              pageSize={8}
-              disableSelectionOnClick
-              autoHeight
-            />
+    <div className="w-full flex items-center pt-5 justify-center">
+      <div className="w-[95%] bg-white">
+        <DataGrid
+          rows={row}
+          columns={columns}
+          pageSize={8}
+          disableSelectionOnClick
+          autoHeight
+        />
+      </div>
+      {open && (
+        <div className="w-full fixed h-screen top-0 left-0 bg-[#00000031] z-[9999] flex items-center justify-center">
+          <div className="w-[70%] min-h-[40vh] bg-white rounded shadow p-10">
+            <div className="flex justify-end w-full">
+              <RxCross1 className="cursor-pointer" size={25} onClick={() => setOpen(false)} />
+            </div>
+            <h1 className="text-[25px] text-center font-Poppins">
+              Update Withdraw status
+            </h1>
+            <br />
+            <select
+              name=""
+              id=""
+              onChange={(e) => setWithdrawStatus(e.target.value)}
+              className="w-[200px] h-[35px] border rounded"
+            >
+              <option value={withdrawStatus}>{withdrawData.status}</option>
+              <option value="Succeed">Succeed</option>
+              <option value="Denied">Denied</option>
+            </select>
+            <button
+              type="submit"
+              className={`block ${styles.button} text-white !h-[42px] mt-4 text-[18px]`}
+              onClick={handleSubmit}
+            >
+              {loading ? "Loading..." : "Update"}
+            </button>
           </div>
-          {open && (
-            <div className="w-full fixed h-screen top-0 left-0 bg-[#00000031] z-[9999] flex items-center justify-center">
-              <div className="w-[70%] min-h-[40vh] bg-white rounded shadow p-10">
-                <div className="flex justify-end w-full">
-                  <RxCross1 className="cursor-pointer" size={25} onClick={() => setOpen(false)} />
-                </div>
-                <h1 className="text-[25px] text-center font-Poppins">
-                  Update Withdraw status
-                </h1>
-                <br />
-                <select
-                  name=""
-                  id=""
-                  onChange={(e) => setWithdrawStatus(e.target.value)}
-                  className="w-[200px] h-[35px] border rounded"
-                >
-                  <option value={withdrawStatus}>{withdrawData.status}</option>
-                  <option value="Succeed">Succeed</option>
-                  <option value="Denied">Denied</option>
-                </select>
-                <button
-                  type="submit"
-                  className={`block ${styles.button} text-white !h-[42px] mt-4 text-[18px]`}
-                  onClick={handleSubmit}
-                >
-                  {loading ? "Loading..." : "Update"}
-                </button>
-              </div>
-            </div>
-          )}
-          {openView && (
-            <div className="w-full fixed p-10 h-screen top-0 left-0 bg-[#00000031] z-[9999] flex items-center justify-center">
-              <div className="w-[70%] min-h-[40vh] bg-white rounded shadow p-10">
-                <div className="flex justify-end w-full">
-                  <RxCross1 className="cursor-pointer" size={25} onClick={() => setOpenView(false)} />
-                </div>
-                <h1 className="text-[25px] text-center font-Poppins">
-                  View Details
-                </h1>
-                <div className="m-3 mt-5">
-		    {sellers?.filter((o) => o._id === showDetails?.shopId).map(({withdrawMethod}) => {
-                       return (
-                          <div key={withdrawMethod.bankAccountNumber}>
-                            <b className="mr-3">Account Number:</b> {withdrawMethod.bankAccountNumber}<br/>
-                            <b className="mr-3">Bank Address:</b> {withdrawMethod.bankAddress}<br/>
-                            <b className="mr-3">Bank Country:</b> {withdrawMethod.bankCountry}<br/>
-                            <b className="mr-3">Account Holder Name:</b> {withdrawMethod.bankHolderName}<br/>
-                            <b className="mr-3">Bank Name:</b> {withdrawMethod.bankName}<br/>
-                            <b className="mr-3">Bank Swift Code:</b> {withdrawMethod.bankSwiftCode}<br/>
-                          </div>
-                        )
-		     })
-		    }
-                </div>
-              </div>
-            </div>
-          )}
         </div>
       )}
-    </>
+      {openView && (
+        <div className="w-full fixed p-10 h-screen top-0 left-0 bg-[#00000031] z-[9999] flex items-center justify-center">
+          <div className="w-[70%] min-h-[40vh] bg-white rounded shadow p-10">
+            <div className="flex justify-end w-full">
+              <RxCross1 className="cursor-pointer" size={25} onClick={() => setOpenView(false)} />
+            </div>
+            <h1 className="text-[25px] text-center font-Poppins">
+              View Details
+            </h1>
+            <div className="m-3 mt-5">
+              {data?.filter(({ seller }) => seller._id === showDetails?.shopId).map(({ seller }, index) => {
+                return (
+                  <div key={index}>
+                    <b className="mr-3">Phone Number:</b> {seller?.phoneNumber}<br />
+                    <b className="mr-3">Account Number:</b> {seller?.withdrawMethod?.bankAccountNumber}<br />
+                    <b className="mr-3">Bank Address:</b> {seller?.withdrawMethod?.bankAddress}<br />
+                    <b className="mr-3">Bank Country:</b> {seller?.withdrawMethod?.bankCountry}<br />
+                    <b className="mr-3">Account Holder Name:</b> {seller?.withdrawMethod?.bankHolderName}<br />
+                    <b className="mr-3">Bank Name:</b> {seller?.withdrawMethod?.bankName}<br />
+                    <b className="mr-3">Bank Swift Code:</b> {seller?.withdrawMethod?.bankSwiftCode}<br />
+                  </div>
+                )
+              })
+              }
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
   );
 };
 

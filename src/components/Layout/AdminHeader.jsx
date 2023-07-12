@@ -9,19 +9,19 @@ import { backend_url } from '../../server'
 import logo from "../../Assests/img/logo.png"
 
 const AdminHeader = () => {
-    const {user} = useSelector((state) => state.user);
+  const { user } = useSelector((state) => state.user);
 
   return (
-         <div className="w-full h-[80px] bg-white shadow sticky top-0 left-0 z-30 flex items-center justify-between px-4">
-     <div className="w-1/4">
-            <Link to="/">
-              <img
-		className="object-contain"
-                src={logo}
-                alt=""
-              />
-            </Link>
-          </div>
+    <div className="w-full h-[80px] bg-white shadow sticky top-0 left-0 z-30 flex items-center justify-between px-4">
+      <div className="w-1/4">
+        <Link to="/">
+          <img
+            className="object-contain"
+            src={logo}
+            alt=""
+          />
+        </Link>
+      </div>
       <div className="flex items-center">
         <div className="flex items-center mr-4">
           <Link to="/dashboard-coupouns" className="800px:block hidden">
@@ -55,11 +55,11 @@ const AdminHeader = () => {
               className="mx-5 cursor-pointer"
             />
           </Link>
-            <img
-              src={`${backend_url}${user?.avatar}`}
-              alt=""
-              className="w-[50px] h-[50px] rounded-full object-cover"
-            />
+          <img
+            src={`${backend_url}${user?.avatar}`}
+            alt=""
+            className="w-[50px] h-[50px] rounded-full object-cover"
+          />
         </div>
       </div>
     </div>

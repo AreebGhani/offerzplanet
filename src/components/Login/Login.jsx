@@ -28,8 +28,12 @@ const Login = () => {
       .then((res) => {
         setLoading(false);
         toast.success("Login Success!");
-        navigate("/profile");
-        window.location.reload(true); 
+        if (res.data.role === "Admin") {
+          navigate("/admin/dashboard");
+        } else {
+          navigate("/profile");
+        }
+        window.location.reload(true);
       })
       .catch((err) => {
         setLoading(false);

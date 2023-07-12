@@ -8,13 +8,13 @@ import axios from "axios";
 import { backend_url, server } from '../../server';
 
 const Sponsored = () => {
-    const [brands, setBrands] = useState([]);
+  const [brands, setBrands] = useState([]);
 
-    useEffect(() => {
-        axios.get(`${server}/brands/get-all-brands`, { withCredentials: true }).then((res) => {
-            setBrands(res.data.brands);
-        })
-    }, []);
+  useEffect(() => {
+    axios.get(`${server}/brands/get-all-brands`).then((res) => {
+      setBrands(res.data.brands);
+    });
+  }, []);
   return (
     <div
       className={`${styles.section} hidden sm:block bg-white py-10 px-5 mb-12 cursor-pointer rounded-xl`}
@@ -22,30 +22,34 @@ const Sponsored = () => {
       <div className="flex justify-between w-full">
         <Swiper
           spaceBetween={5}
-          slidesPerView={brands ? brands.length : 0}
-	  modules={[Autoplay]}
-	 autoplay={{
+          slidesPerView={brands ? 6 : 0}
+          modules={[Autoplay]}
+          autoplay={{
             delay: 2000,
             disableOnInteraction: false,
           }}
-    	>
-          <SwiperSlide className="">
-	    {
-		brands &&
-		   brands.map((brand, i)=>{
-			return(
-			 <img
-			 key={brand._id}
-             		 src={`${backend_url}${brand.image}`}
-             		 alt={brand.name}
-			 title={brand.name}
-	    		 style={{width:"150px", objectFit:"contain"}}
-          		/>
-			)
-		   })
-	    }
-          </SwiperSlide>
-	</Swiper>
+          loop={true}
+        >
+
+          {
+            brands &&
+            brands.map((brand, i) => {
+              return (
+                <SwiperSlide key={brand._id}>
+                  <img
+                    src={`${backend_url}${brand.image}`}
+                    alt={brand.name}
+                    title={brand.name}
+                    style={{ aspectRatio: "1/1" }}
+                    width="150px"
+                    height="150px"
+                  />
+                </SwiperSlide>
+              )
+            })
+          }
+
+        </Swiper>
       </div>
     </div>
   );

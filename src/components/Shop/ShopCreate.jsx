@@ -11,10 +11,10 @@ const ShopCreate = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [name,setName] = useState("");
-  const [phoneNumber,setPhoneNumber] = useState();
+  const [phoneNumber,setPhoneNumber] = useState("");
   const [address,setAddress] = useState("");
-  const [zipCode,setZipCode] = useState();
-  const [avatar,setAvatar] = useState();
+  const [zipCode,setZipCode] = useState("");
+  const [avatar,setAvatar] = useState("");
   const [password, setPassword] = useState("");
   const [visible, setVisible] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -35,6 +35,7 @@ const ShopCreate = () => {
     newForm.append("phoneNumber", phoneNumber);
     if(password.length < 6){
       toast.error("Password length should be at least 6 characters");
+      setLoading(false);
       return;
     }
     axios

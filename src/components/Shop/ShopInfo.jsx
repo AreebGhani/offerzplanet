@@ -3,37 +3,31 @@ import React, { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { backend_url, server } from "../../server";
 import styles from "../../styles/styles";
-import Loader from "../Layout/Loader";
 import { useDispatch, useSelector } from "react-redux";
 import { getAllProductsShop } from "../../redux/actions/product";
 
 const ShopInfo = ({ isOwner }) => {
-  const [data,setData] = useState({});
-  const {products} = useSelector((state) => state.products);
-  const [isLoading,setIsLoading] = useState(false);
-  const {id} = useParams();
+  const [data, setData] = useState({});
+  const { products } = useSelector((state) => state.products);
+  const { id } = useParams();
   const dispatch = useDispatch();
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     dispatch(getAllProductsShop(id));
-    setIsLoading(true);
     axios.get(`${server}/shop/get-shop-info/${id}`).then((res) => {
-     setData(res.data.shop);
-     setIsLoading(false);
-    }).catch((error) => {
-      console.log(error);
+      setData(res.data.shop);
       setIsLoading(false);
-    })
-  }, [])
-  
+    }).catch((e) => setIsLoading(false))
+  }, [dispatch, id])
 
   const logoutHandler = async () => {
     let e = window.confirm("Do you want to logout?");
-    if(e){
-    axios.get(`${server}/shop/logout`,{
-      withCredentials: true,
-    });
-    window.location.reload();
+    if (e) {
+      axios.get(`${server}/shop/logout`, {
+        withCredentials: true,
+      });
+      window.location.reload();
     }
   };
 
@@ -41,17 +35,20 @@ const ShopInfo = ({ isOwner }) => {
     products &&
     products.reduce((acc, product) => acc + product.reviews.length, 0);
 
-  const totalRatings = products && products.reduce((acc,product) => acc + product.reviews.reduce((sum,review) => sum + review.rating, 0),0);
+  const totalRatings = products && products.reduce((acc, product) => acc + product.reviews.reduce((sum, review) => sum + review.rating, 0), 0);
 
   const averageRating = totalRatings / totalReviewsLength || 0;
 
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center w-full h-screen">
+        <div className="rounded-full border-t-4 border-b-4 border-red-600 h-20 w-20 animate-spin"></div>
+      </div>
+    )
+  }
+
   return (
-   <>
-   {
-    isLoading  ? (
-      <Loader />
-    ) : (
-      <div>
+    <div>
       <div className="w-full py-5">
         <div className="w-full flex item-center justify-center">
           <img
@@ -87,22 +84,19 @@ const ShopInfo = ({ isOwner }) => {
       </div>
       {isOwner && (
         <div className="py-3 px-4">
-           <Link to="/settings">
-           <div className={`${styles.button} !w-full !h-[42px] !rounded-[5px]`}>
-            <span className="text-white">Edit Shop</span>
-          </div>
-           </Link>
+          <Link to="/settings">
+            <div className={`${styles.button} !w-full !h-[42px] !rounded-[5px]`}>
+              <span className="text-white">Edit Shop</span>
+            </div>
+          </Link>
           <div className={`${styles.button} !w-full !h-[42px] !rounded-[5px]`}
-          onClick={logoutHandler}
+            onClick={logoutHandler}
           >
             <span className="text-white">Log Out</span>
           </div>
         </div>
       )}
     </div>
-    )
-   }
-   </>
   );
 };
 

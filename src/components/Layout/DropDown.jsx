@@ -6,9 +6,8 @@ import { backend_url } from "../../server";
 const DropDown = ({ categoriesData, setDropDown }) => {
   const navigate = useNavigate();
   const submitHandle = (i) => {
-    navigate(`/products?category=${i.name}`);
+    navigate(`/products?category=${i._id}`);
     setDropDown(false);
-    window.location.reload();
   };
   return (
     <div className="pb-4 w-[270px] bg-[#fff] absolute z-30 rounded-b-md shadow-sm">

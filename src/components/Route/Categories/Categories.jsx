@@ -36,12 +36,12 @@ const Categories = () => {
           {categories &&
             categories.map((i) => {
               const handleSubmit = (i) => {
-                navigate(`/products?category=${i.name}`);
+                navigate(`/products?category=${i._id}`);
               };
               return (
                 <div
                   className="w-full h-[100px] flex items-center justify-between cursor-pointer overflow-hidden"
-                  key={i.id}
+                  key={i._id}
                   onClick={() => handleSubmit(i)}
                 >
                   <h5 className={`text-[18px] leading-[1.3]`}>{i.name}</h5>

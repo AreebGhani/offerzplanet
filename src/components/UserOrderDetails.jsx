@@ -1,14 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { BsFillBagFill } from "react-icons/bs";
-import { Link, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import styles from "../styles/styles";
 import { getAllOrdersOfUser } from "../redux/actions/order";
 import { backend_url, server } from "../server";
 import { RxCross1 } from "react-icons/rx";
+import { FcImageFile } from "react-icons/fc";
 import { AiFillStar, AiOutlineStar } from "react-icons/ai";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { Country, State } from "country-state-city";
 
 const UserOrderDetails = () => {
   const { orders } = useSelector((state) => state.order);
@@ -24,7 +26,7 @@ const UserOrderDetails = () => {
 
   useEffect(() => {
     dispatch(getAllOrdersOfUser(user._id));
-  }, [dispatch]);
+  }, [dispatch, user._id]);
 
   const data = orders && orders.find((item) => item._id === id);
 
@@ -32,10 +34,10 @@ const UserOrderDetails = () => {
     setLoading(true);
     await axios
       .put(
-        selectedItem.Finish_Date !== null && selectedItem.status === "Running" ? 
-        `${server}/event/create-new-review`
-        :
-        `${server}/product/create-new-review`,
+        selectedItem.Finish_Date !== null && selectedItem.status === "Running" ?
+          `${server}/event/create-new-review`
+          :
+          `${server}/product/create-new-review`,
         {
           user,
           rating,
@@ -58,13 +60,13 @@ const UserOrderDetails = () => {
         toast.error(error);
       });
   };
-  
+
   const refundHandler = async () => {
-    await axios.put(`${server}/order/order-refund/${id}`,{
+    await axios.put(`${server}/order/order-refund/${id}`, {
       status: "Processing refund"
     }).then((res) => {
-       toast.success(res.data.message);
-    dispatch(getAllOrdersOfUser(user._id));
+      toast.success(res.data.message);
+      dispatch(getAllOrdersOfUser(user._id));
     }).catch((error) => {
       toast.error(error.response.data.message);
     })
@@ -93,30 +95,35 @@ const UserOrderDetails = () => {
       <br />
       {data &&
         data?.cart.map((item, index) => {
-          return(
-          <div className="w-full flex items-start mb-5">
-            <img
-              src={`${backend_url}/${item.images[0]}`}
-              alt=""
-              className="w-[80x] h-[80px]"
-            />
-            <div className="w-full">
-              <h5 className="pl-3 text-[20px]">{item.name}</h5>
-              <h5 className="pl-3 text-[20px] text-[#00000091]">
-                Rs.{item.discountPrice} x {item.qty}
-              </h5>
-            </div>
-            {!item.isReviewed && data?.status === "Delivered" ?  <div
+          return (
+            <div className="w-full flex items-start border-t" key={index}>
+              <Image item={item} />
+              <div className="w-full ml-5 my-8">
+                <h5 className="pl-3 text-[20px]">{item.name}</h5>
+                <h5 className="pl-3 text-[20px] text-[#00000091]">
+                  Rs.{item.discountPrice} x {item.qty}
+                </h5>
+                <div>
+                  {item?.selectedProperties?.length !== 0 && item?.selectedProperties?.map((p, i) => {
+                    return (
+                      <div className="pl-3 text-[15px] text-[#00000091] capitalize" key={i}>
+                        <b>{p?.name}:</b> {p?.value}
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+              {!item.isReviewed && data?.status === "Delivered" ? <div
                 className={`${styles.button} text-[#fff]`}
                 onClick={() => setOpen(true) || setSelectedItem(item)}
               >
                 Write a review
               </div> : (
-             null
-            )}
-          </div>
+                null
+              )}
+            </div>
           )
-         })}
+        })}
 
       {/* review popup */}
       {open && (
@@ -214,14 +221,16 @@ const UserOrderDetails = () => {
       <div className="w-full 800px:flex items-center">
         <div className="w-full 800px:w-[60%]">
           <h4 className="pt-3 text-[20px] font-[600]">Shipping Address:</h4>
-          <h4 className="pt-3 text-[20px]">
-            {data?.shippingAddress.address1 +
-              " " +
-              data?.shippingAddress.address2}
+          <h4 className="pt-3 text-[18px]">Name: {data?.user?.name}</h4>
+          <h4 className="text-[18px]">Contact: {data?.user?.phoneNumber}</h4>
+          <h4 className="text-[18px]">
+            Address 1: {data?.shippingAddress.address1}
+            <br />
+            Address 2: {data?.shippingAddress.address2}
           </h4>
-          <h4 className=" text-[20px]">{data?.shippingAddress.country}</h4>
-          <h4 className=" text-[20px]">{data?.shippingAddress.city}</h4>
-          <h4 className=" text-[20px]">{data?.user?.phoneNumber}</h4>
+          <h4 className=" text-[18px]">State: {State.getStateByCodeAndCountry(data?.shippingAddress.state, data?.shippingAddress.country)?.name}</h4>
+          <h4 className=" text-[18px]">Country: {Country.getCountryByCode(data?.shippingAddress.country)?.name}</h4>
+          <h4 className=" text-[18px]">Zip Code: {data?.shippingAddress.zipCode}</h4>
         </div>
         <div className="w-full 800px:w-[40%]">
           <h4 className="pt-3 text-[20px]">Payment Info:</h4>
@@ -230,13 +239,13 @@ const UserOrderDetails = () => {
             {data?.paymentInfo?.status ? data?.paymentInfo?.status : "Not Paid"}
           </h4>
           <br />
-           {
+          {
             data?.status === "Delivered" && (
               <div className={`${styles.button} text-white`}
-              onClick={refundHandler}
+                onClick={refundHandler}
               >Give a Refund</div>
             )
-           }
+          }
         </div>
       </div>
       <br />
@@ -247,3 +256,38 @@ const UserOrderDetails = () => {
 };
 
 export default UserOrderDetails;
+
+
+const Image = ({ item }) => {
+  const [isImageLoaded, setIsImageLoaded] = useState(false);
+
+  useEffect(() => {
+    const fetchImage = async () => {
+      try {
+        await axios.get(`${backend_url}${item.images[0]}`);
+        setIsImageLoaded(true);
+      } catch (error) {
+        setIsImageLoaded(false);
+      }
+    };
+
+    fetchImage();
+  }, [item.images]);
+
+  return (
+    <div>
+      {isImageLoaded ? (
+        <img
+          src={`${backend_url}${item.images[0]}`}
+          alt=""
+          className="w-[80x] h-[80px] my-8"
+          style={{ aspectRatio: '1/1' }}
+        />
+      ) : (
+        <div className="w-[80x] h-[80px] my-8 flex justify-center align-middle" style={{ aspectRatio: '1/1' }}>
+          <FcImageFile size={60} />
+        </div>
+      )}
+    </div>
+  );
+};

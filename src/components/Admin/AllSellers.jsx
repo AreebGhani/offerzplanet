@@ -10,7 +10,6 @@ import { server } from "../../server";
 import { toast } from "react-toastify";
 import { getAllSellers } from "../../redux/actions/sellers";
 import { Link } from "react-router-dom";
-import Loader from "../Layout/Loader";
 import RenderExpandableCell from "../Layout/RenderExpandableCell"
 
 const AllSellers = () => {
@@ -29,17 +28,16 @@ const AllSellers = () => {
       .then((res) => {
         toast.success(res.data.message);
       });
-
     dispatch(getAllSellers());
   };
 
   const columns = [
-    { 
-       field: "id",
-       headerName: "Seller ID",
-       minWidth: 130,
-       flex: 0.8,
-       renderCell: params => <RenderExpandableCell {...params} />
+    {
+      field: "id",
+      headerName: "Seller ID",
+      minWidth: 130,
+      flex: 0.8,
+      renderCell: params => <RenderExpandableCell {...params} />
     },
 
     {
@@ -52,6 +50,14 @@ const AllSellers = () => {
     {
       field: "email",
       headerName: "Email",
+      type: "text",
+      minWidth: 130,
+      flex: 0.8,
+      renderCell: params => <RenderExpandableCell {...params} />
+    },
+    {
+      field: "contact",
+      headerName: "Contact",
       type: "text",
       minWidth: 130,
       flex: 0.8,
@@ -119,60 +125,61 @@ const AllSellers = () => {
         id: item._id,
         name: item?.name,
         email: item?.email,
+        contact: item?.phoneNumber,
         joinedAt: item.createdAt.slice(0, 10),
         address: item.address,
       });
     });
 
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center w-full h-screen">
+        <div className="rounded-full border-t-4 border-b-4 border-red-600 h-20 w-20 animate-spin"></div>
+      </div>
+    )
+  }
+
   return (
-    <>
-      {
-        isLoading ? (
-          <Loader />
-        ) : (
-          <div className="w-full flex justify-center pt-5">
-            <div className="w-[97%]">
-              <h3 className="text-[22px] font-Poppins pb-2">All Sellers</h3>
-              <div className="w-full min-h-[45vh] bg-white rounded">
-                <DataGrid
-                  rows={row}
-                  columns={columns}
-                  pageSize={8}
-                  disableSelectionOnClick
-                  autoHeight
-                />
+    <div className="w-full flex justify-center pt-5">
+      <div className="w-[97%]">
+        <h3 className="text-[22px] font-Poppins pb-2">All Sellers</h3>
+        <div className="w-full min-h-[45vh] bg-white rounded">
+          <DataGrid
+            rows={row}
+            columns={columns}
+            pageSize={8}
+            disableSelectionOnClick
+            autoHeight
+          />
+        </div>
+        {open && (
+          <div className="w-full fixed top-0 left-0 z-[999] bg-[#00000039] flex items-center justify-center h-screen">
+            <div className="w-[95%] 800px:w-[40%] min-h-[20vh] bg-white rounded shadow p-5">
+              <div className="w-full flex justify-end cursor-pointer">
+                <RxCross1 size={25} onClick={() => setOpen(false)} />
               </div>
-              {open && (
-                <div className="w-full fixed top-0 left-0 z-[999] bg-[#00000039] flex items-center justify-center h-screen">
-                  <div className="w-[95%] 800px:w-[40%] min-h-[20vh] bg-white rounded shadow p-5">
-                    <div className="w-full flex justify-end cursor-pointer">
-                      <RxCross1 size={25} onClick={() => setOpen(false)} />
-                    </div>
-                    <h3 className="text-[25px] text-center py-5 font-Poppins text-[#000000cb]">
-                      Are you sure you wanna delete this user?
-                    </h3>
-                    <div className="w-full flex items-center justify-center">
-                      <div
-                        className={`${styles.button} text-white text-[18px] !h-[42px] mr-4`}
-                        onClick={() => setOpen(false)}
-                      >
-                        cancel
-                      </div>
-                      <div
-                        className={`${styles.button} text-white text-[18px] !h-[42px] ml-4`}
-                        onClick={() => setOpen(false) || handleDelete(userId)}
-                      >
-                        confirm
-                      </div>
-                    </div>
-                  </div>
+              <h3 className="text-[25px] text-center py-5 font-Poppins text-[#000000cb]">
+                Are you sure you wanna delete this user?
+              </h3>
+              <div className="w-full flex items-center justify-center">
+                <div
+                  className={`${styles.button} text-white text-[18px] !h-[42px] mr-4`}
+                  onClick={() => setOpen(false)}
+                >
+                  Cancel
                 </div>
-              )}
+                <div
+                  className={`${styles.button} text-white text-[18px] !h-[42px] ml-4`}
+                  onClick={() => setOpen(false) || handleDelete(userId)}
+                >
+                  Confirm
+                </div>
+              </div>
             </div>
           </div>
-        )
-      }
-    </>
+        )}
+      </div>
+    </div>
   );
 };
 

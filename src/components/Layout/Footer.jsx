@@ -5,12 +5,6 @@ import {
   AiFillYoutube,
   AiOutlineTwitter,
 } from "react-icons/ai";
-import { Link } from "react-router-dom";
-import {
-  footercompanyLinks,
-  footerProductLinks,
-  footerSupportLinks,
-} from "../../static/data";
 import logo from "../../Assests/img/logo.png";
 import payment from "../../Assests/img/footer-payment.webp";
 
@@ -23,7 +17,7 @@ const Footer = () => {
           <span className="text-[#fff]">For more information feel free to contact us</span>
         </h1>
         <div>
-          <a href="tel:+923090855822" className="bg-transparent cursor-pointer hover:bg-white text-white font-semibold hover:text-[#ec1c2c] border border-white hover:border-transparent rounded-full duration-300 px-5 py-2.5 text-black sm:text-sm">
+          <a href="tel:+923090855822" className="bg-transparent cursor-pointer hover:bg-white text-white font-semibold hover:text-[#ec1c2c] border border-white hover:border-transparent rounded-full duration-300 px-5 py-2.5 sm:text-sm">
             Contact Us
           </a>
         </div>

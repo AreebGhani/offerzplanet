@@ -12,7 +12,7 @@ const EventCard = ({ data }) => {
   const { cart } = useSelector((state) => state.cart);
   const dispatch = useDispatch();
 
- const { length } = Timer({data});
+  const { length } = Timer({ data });
 
   const addToCartHandler = (data) => {
     const isItemExists = cart && cart.find((i) => i._id === data._id);
@@ -22,7 +22,12 @@ const EventCard = ({ data }) => {
       if (data.stock < 1) {
         toast.error("Product stock limited!");
       } else {
-        const cartData = { ...data, qty: 1 };
+        const selectedProperties = data.properties.map(item => {
+          let p = JSON.parse(item);
+          let values = p.values.split(',').map(value => value.trim());
+          return { name: p.name, value: values[0] };
+        });
+        const cartData = { ...data, qty: 1, selectedProperties: selectedProperties };
         dispatch(addTocart(cartData));
         toast.success("Item added to cart successfully!");
       }
@@ -30,7 +35,7 @@ const EventCard = ({ data }) => {
   }
   return (
     <div
-      className={`w-full block p-5 bg-white mb-12 rounded-lg lg:flex p-2`}
+      className={`w-full block p-5 bg-white mb-12 rounded-lg lg:flex`}
     >
       <div className="w-full lg:-w[50%] m-auto flex justify-center items-center">
         <img src={`${backend_url}${data.images[0]}`} className="h-[50vh]" alt="" />
@@ -58,8 +63,8 @@ const EventCard = ({ data }) => {
             <div className={`${styles.button} text-[#fff]`}>See Details</div>
           </Link>
           <div className={`${styles.button} text-[#fff] ml-5 ${(data.stock < 1 || !length) && "!cursor-not-allowed !bg-[darkgray]"}`} onClick={() => (data.stock > 0 && length) && addToCartHandler(data)}>
-	      {(data.stock < 1 || !length) ? "Out Of Stock" : "Add to cart"}
-	  </div>
+            {(data.stock < 1 || !length) ? "Out Of Stock" : "Add to cart"}
+          </div>
         </div>
       </div>
     </div>

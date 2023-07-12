@@ -27,6 +27,7 @@ const ProductDetails = ({ data }) => {
   const [count, setCount] = useState(1);
   const [click, setClick] = useState(false);
   const [select, setSelect] = useState(0);
+  const [productProperties, setProductProperties] = useState([]);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   useEffect(() => {
@@ -36,7 +37,7 @@ const ProductDetails = ({ data }) => {
     } else {
       setClick(false);
     }
-  }, [data, wishlist]);
+  }, [data, wishlist, dispatch]);
 
   const incrementCount = () => {
     if (data.stock > count) {
@@ -68,9 +69,18 @@ const ProductDetails = ({ data }) => {
       if (data.stock < 1) {
         toast.error("Product stock limited!");
       } else {
-        const cartData = { ...data, qty: count };
-        dispatch(addTocart(cartData));
-        toast.success("Item added to cart successfully!");
+        const areAllPropertiesSelected = data.properties.every(props => {
+          const p = JSON.parse(props);
+          const property = productProperties.find(prop => prop.name === p.name);
+          return property && property.value !== '';
+        });
+        if (!areAllPropertiesSelected) {
+          toast.error("Please select product properties!");
+        } else {
+          const cartData = { ...data, qty: count, selectedProperties: productProperties };
+          dispatch(addTocart(cartData));
+          toast.success("Item added to cart successfully!");
+        }
       }
     }
   };
@@ -114,38 +124,56 @@ const ProductDetails = ({ data }) => {
     }
   };
 
+  function setProductProp(propName, value) {
+    const existingProperty = productProperties.find(prop => prop.name === propName);
+    if (existingProperty) {
+      setProductProperties(prev => {
+        const updatedProperties = prev.map(prop => {
+          if (prop.name === propName) {
+            return { ...prop, value: value };
+          }
+          return prop;
+        });
+        return updatedProperties;
+      });
+    } else {
+      setProductProperties(prev => ([
+        ...prev,
+        {
+          name: propName,
+          value: value
+        }
+      ]));
+    }
+  }
+
   return (
     <div className="bg-white">
       {data ? (
-        <div className={`${styles.section} w-[90%] 800px:w-[80%]`}>
+        <div className={`${styles.section} mt-10 w-[90%] 800px:w-[80%]`}>
           <div className="w-full py-5">
             <div className="block w-full 800px:flex">
               <div className="w-full 800px:w-[50%]">
                 <img
                   src={`${backend_url}${data && data.images[select]}`}
                   alt=""
-                  className="w-[80%]"
+                  className="w-[30rem] h-[30rem]"
                 />
                 <div className="w-full flex">
                   {data &&
                     data.images.map((i, index) => (
                       <div
                         key={index}
-                        className={`${select === 0 ? "border" : "null"
-                          } cursor-pointer`}
+                        className="cursor-pointer"
                       >
                         <img
                           src={`${backend_url}${i}`}
                           alt=""
-                          className="h-[200px] overflow-hidden mr-3 mt-3"
+                          className={`h-[80px] w-[80px] overflow-hidden mr-3 mt-5 rounded-full border-[3px] ${select === index ? "border-[#81ada3]" : "border-none"}`}
                           onClick={() => setSelect(index)}
                         />
                       </div>
                     ))}
-                  <div
-                    className={`${select === 1 ? "border" : "null"
-                      } cursor-pointer`}
-                  ></div>
                 </div>
               </div>
               <div className="w-full 800px:w-[50%] pt-5">
@@ -159,7 +187,30 @@ const ProductDetails = ({ data }) => {
                     {data.originalPrice ? data.originalPrice : null}
                   </h3>
                 </div>
-                <div className="flex items-center mt-12 justify-between pr-3">
+                <div className="mt-7 capitalize text-center">
+                  {data.properties.length !== 0 && data.properties.map((props, index) => {
+                    let p = JSON.parse(props);
+                    let values = p.values.trim().split(/[ ,]+/);
+                    return (
+                      <div key={index} className="flex items-center justify-start gap-5 my-3">
+                        <label>{p.name}: </label>
+                        <div>
+                          <select
+                            value={productProperties.find(prop => prop.name === p.name)?.value}
+                            onChange={ev => setProductProp(p.name, ev.target.value)}
+                            className="capitalize borderh-[35px] rounded-[5px]"
+                          >
+                            <option value="">Choose {p.name}</option>
+                            {values?.map((v, i) => (
+                              <option key={i} value={v}>{v}</option>
+                            ))}
+                          </select>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+                <div className="flex items-center mt-5 justify-between pr-3">
                   {
                     data.stock > 0 ?
                       <div>
@@ -202,27 +253,29 @@ const ProductDetails = ({ data }) => {
                   </div>
                 </div>
                 <div
-                  className={`${styles.button} !mt-6 !rounded !h-11 flex items-center ${data.stock < 1 && "!cursor-not-allowed !bg-[darkgray]"}`}           
+                  className={`${styles.button} !mt-6 !rounded !h-11 flex items-center ${data.stock < 1 && "!cursor-not-allowed !bg-[darkgray]"}`}
                   onClick={() => data.stock > 0 && addToCartHandler(data._id)}
                 >
                   <span className="text-white flex items-center">
                     {data.stock > 0 ? (<>Add to Cart<AiOutlineShoppingCart className="ml-1" /></>) : "Out Of Stock"}
                   </span>
                 </div>
-                <div className="flex items-center pt-8">
-                  <Link to={`/shop/preview/${data?.shop._id}`}>
-                    <img
-                      src={`${backend_url}${data?.shop?.avatar}`}
-                      alt=""
-                      className="w-[50px] h-[50px] rounded-full mr-2"
-                    />
-                  </Link>
-                  <div className="pr-8">
-                    <Link to={`/shop/preview/${data?.shop._id}`}>
-                      <h3 className={`${styles.shop_name} pb-1 pt-1`}>
-                        {data.shop.name}
-                      </h3>
-                    </Link>
+                <div className="flex items-center justify-between pt-8">
+                  <div>
+                    <div className="flex item-center">
+                      <Link to={`/shop/preview/${data?.shop._id}`}>
+                        <img
+                          src={`${backend_url}${data?.shop?.avatar}`}
+                          alt=""
+                          className="w-[50px] h-[50px] rounded-full mr-2"
+                        />
+                      </Link>
+                      <Link to={`/shop/preview/${data?.shop._id}`}>
+                        <h3 className={`${styles.shop_name} pb-1 pt-1`}>
+                          {data.shop.name}
+                        </h3>
+                      </Link>
+                    </div>
                     <h5 className="pb-3 text-[15px]">
                       ({averageRating}/5) Ratings
                     </h5>

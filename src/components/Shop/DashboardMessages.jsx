@@ -1,9 +1,8 @@
 import axios from "axios";
 import React, { useRef, useState } from "react";
 import { useEffect } from "react";
-import Loader from "../Layout/Loader";
 import { backend_url, server } from "../../server";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { AiOutlineArrowRight, AiOutlineSend } from "react-icons/ai";
 import styles from "../../styles/styles";
@@ -18,15 +17,14 @@ const DashboardMessages = () => {
   const { seller } = useSelector((state) => state.seller);
   const [conversations, setConversations] = useState([]);
   const [arrivalMessage, setArrivalMessage] = useState(null);
-  const [currentChat, setCurrentChat] = useState();
+  const [currentChat, setCurrentChat] = useState("");
   const [messages, setMessages] = useState([]);
   const [userData, setUserData] = useState(null);
   const [newMessage, setNewMessage] = useState("");
   const [onlineUsers, setOnlineUsers] = useState([]);
   const [activeStatus, setActiveStatus] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [images, setImages] = useState();
   const [open, setOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const scrollRef = useRef(null);
 
   useEffect(() => {
@@ -53,13 +51,10 @@ const DashboardMessages = () => {
           {
             withCredentials: true,
           }
-        );
+        ).then((res) => setIsLoading(false)).catch((e) => setIsLoading(false));
 
         setConversations(resonse.data.conversations);
-        setLoading(false);
-      } catch (error) {
-        setLoading(false);
-      }
+      } catch (error) { setIsLoading(false) }
     };
     getConversation();
   }, [seller, messages]);
@@ -89,9 +84,7 @@ const DashboardMessages = () => {
           `${server}/message/get-all-messages/${currentChat?._id}`
         );
         setMessages(response.data.messages);
-      } catch (error) {
-        // console.log(error);
-      }
+      } catch (error) { }
     };
     getMessage();
   }, [currentChat]);
@@ -124,13 +117,8 @@ const DashboardMessages = () => {
             setMessages([...messages, res.data.message]);
             updateLastMessage();
           })
-          .catch((error) => {
-            // console.log(error);
-          });
       }
-    } catch (error) {
-      // console.log(error);
-    }
+    } catch (error) { }
   };
 
   const updateLastMessage = async () => {
@@ -145,17 +133,12 @@ const DashboardMessages = () => {
         lastMessageId: seller._id,
       })
       .then((res) => {
-        // console.log(res.data.conversation);
         setNewMessage("");
       })
-      .catch((error) => {
-        // console.log(error);
-      });
   };
 
   const handleImageUpload = async (e) => {
     const file = e.target.files[0];
-    setImages(file);
     imageSendingHandler(file);
   };
 
@@ -179,19 +162,16 @@ const DashboardMessages = () => {
 
     try {
       await axios
-        .post(`${server}/message/create-new-message`, formData,{
+        .post(`${server}/message/create-new-message`, formData, {
           headers: {
             "Content-Type": "multipart/form-data",
           },
         })
         .then((res) => {
-          setImages();
           setMessages([...messages, res.data.message]);
           updateLastMessageForImage();
         });
-    } catch (error) {
-      // console.log(error);
-    }
+    } catch (error) { }
   };
 
   const updateLastMessageForImage = async () => {
@@ -208,14 +188,16 @@ const DashboardMessages = () => {
     scrollRef.current?.scrollIntoView({ beahaviour: "smooth" });
   }, [messages]);
 
-  if(loading){
-    return(
-       <Loader/>
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center w-full h-screen">
+        <div className="rounded-full border-t-4 border-b-4 border-red-600 h-20 w-20 animate-spin"></div>
+      </div>
     )
-  }
-  
-   return (
-    <div className="w-[90%] bg-white m-5 h-[85vh] overflow-y-scroll rounded">
+  } 
+
+  return (
+    <div className="w-[90%] bg-white m-5 h-[80vh] overflow-y-scroll rounded">
       {!open && (
         <>
           <h1 className="text-center text-[30px] py-3 font-Poppins">
@@ -269,7 +251,6 @@ const MessageList = ({
   online,
   setActiveStatus,
 }) => {
-  // console.log(data);
   const [user, setUser] = useState([]);
   const navigate = useNavigate();
   const handleClick = (id) => {
@@ -279,24 +260,21 @@ const MessageList = ({
   const [active, setActive] = useState(0);
 
   useEffect(() => {
-    const userId = data.members.find((user) => user != me);
+    const userId = data.members.find((user) => user !== me);
 
     const getUser = async () => {
       try {
         const res = await axios.get(`${server}/user/user-info/${userId}`);
         setUser(res.data.user);
-      } catch (error) {
-        // console.log(error);
-      }
+      } catch (error) { }
     };
     getUser();
   }, [me, data]);
 
   return (
     <div
-      className={`w-full flex p-3 px-3 ${
-        active === index ? "bg-[#00000010]" : "bg-transparent"
-      }  cursor-pointer`}
+      className={`w-full flex p-3 px-3 ${active === index ? "bg-[#00000010]" : "bg-transparent"
+        }  cursor-pointer`}
       onClick={(e) =>
         setActive(index) ||
         handleClick(data._id) ||
@@ -368,55 +346,52 @@ const SellerInbox = ({
       <div className="px-3 h-[65vh] py-3 overflow-y-scroll">
         {messages &&
           messages.map((item, index) => {
-             return (
+            return (
               <div
-              key={index}
-              className={`flex w-full my-2 ${
-                item.sender === sellerId ? "justify-end" : "justify-start"
-              }`}
-              ref={scrollRef}
-            >
-              {item.sender !== sellerId && (
-                <img
-                  src={`${backend_url}${userData?.avatar}`}
-                  className="w-[40px] h-[40px] rounded-full mr-3"
-                  alt=""
-                />
-              )}
-              {
-                item.images && (
+                key={index}
+                className={`flex w-full my-2 ${item.sender === sellerId ? "justify-end" : "justify-start"
+                  }`}
+                ref={scrollRef}
+              >
+                {item.sender !== sellerId && (
                   <img
-                     src={`${backend_url}${item.images}`}
-                     className="w-[300px] h-[300px] object-cover rounded-[10px] mr-2"
-                     alt=""
+                    src={`${backend_url}${userData?.avatar}`}
+                    className="w-[40px] h-[40px] rounded-full mr-3"
+                    alt=""
                   />
-                )
-              }
-             {
-              item.text !== "" && (
-                <div>
-                <div
-                  className={`w-max p-2 rounded ${
-                    item.sender === sellerId ? "bg-[#000]" : "bg-[#38c776]"
-                  } text-[#fff] h-min`}
-                >
-                  <p>{item.text}</p>
-                </div>
+                )}
+                {
+                  item.images && (
+                    <img
+                      src={`${backend_url}${item.images}`}
+                      className="w-[300px] h-[300px] object-cover rounded-[10px] mr-2"
+                      alt=""
+                    />
+                  )
+                }
+                {
+                  item.text !== "" && (
+                    <div>
+                      <div
+                        className={`w-max p-2 rounded ${item.sender === sellerId ? "bg-[#000]" : "bg-[#38c776]"
+                          } text-[#fff] h-min`}
+                      >
+                        <p>{item.text}</p>
+                      </div>
 
-                <p className="text-[12px] text-[#000000d3] pt-1">
-                  {format(item.createdAt)}
-                </p>
+                      <p className="text-[12px] text-[#000000d3] pt-1">
+                        {format(item.createdAt)}
+                      </p>
+                    </div>
+                  )
+                }
               </div>
-              )
-             }
-            </div>
-             )
-      })}
+            )
+          })}
       </div>
 
       {/* send message input */}
       <form
-        aria-required={true}
         className="p-3 relative w-full flex justify-between items-center"
         onSubmit={sendMessageHandler}
       >
@@ -436,6 +411,7 @@ const SellerInbox = ({
           <input
             type="text"
             required
+            autoFocus
             placeholder="Enter your message..."
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}

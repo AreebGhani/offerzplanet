@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { server } from "../../server";
 
 export function Timer({ data }) {
   const [timeLeft, setTimeLeft] = useState(calculateTimeLeft());

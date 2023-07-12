@@ -3,7 +3,6 @@ import styles from "../../styles/styles";
 import { Country, State } from "country-state-city";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { useEffect } from "react";
 import axios from "axios";
 import { server } from "../../server";
 import { toast } from "react-toastify";
@@ -11,48 +10,53 @@ import { toast } from "react-toastify";
 const Checkout = () => {
   const { user } = useSelector((state) => state.user);
   const { cart } = useSelector((state) => state.cart);
-  const [country, setCountry] = useState("");
-  const [city, setCity] = useState("");
+  const [country, setCountry] = useState("PK");
+  const [state, setState] = useState("");
   const [userInfo, setUserInfo] = useState(false);
+  const [phoneNumber, setPhoneNumber] = useState("");
   const [address1, setAddress1] = useState("");
   const [address2, setAddress2] = useState("");
-  const [zipCode, setZipCode] = useState(null);
+  const [zipCode, setZipCode] = useState("");
   const [couponCode, setCouponCode] = useState("");
   const [couponCodeData, setCouponCodeData] = useState(null);
   const [discountPrice, setDiscountPrice] = useState(null);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, []);
-
   const paymentSubmit = () => {
-   if(address1 === "" || address2 === "" || zipCode === null || country === "" || city === ""){
-      toast.error("Please choose your delivery address!")
-   } else{
-    const shippingAddress = {
-      address1,
-      address2,
-      zipCode,
-      country,
-      city,
-    };
+    if (address1 === "" || address2 === "" || zipCode === null || country === "" || state === "") {
+      toast.error("Please choose your delivery address!");
+    } else {
+      let newUser = { ...user };
+      if (user.phoneNumber === undefined || user.phoneNumber === "" || user.phoneNumber === 0) {
+        if (phoneNumber === "") {
+          toast.error("Please enter your phone number!");
+          return;
+        }
+        newUser.phoneNumber = phoneNumber;
+      }
+      const shippingAddress = {
+        address1,
+        address2,
+        zipCode,
+        country,
+        state,
+      };
 
-    const orderData = {
-      cart,
-      totalPrice,
-      subTotalPrice,
-      shipping,
-      discountPrice,
-      shippingAddress,
-      user,
+      const orderData = {
+        cart,
+        totalPrice,
+        subTotalPrice,
+        shipping,
+        discountPrice,
+        shippingAddress,
+        user: newUser,
+      }
+
+      // update local storage with the updated orders array
+      localStorage.setItem("latestOrder", JSON.stringify(orderData));
+      navigate("/payment");
     }
-
-    // update local storage with the updated orders array
-    localStorage.setItem("latestOrder", JSON.stringify(orderData));
-    navigate("/payment");
-   }
   };
 
   const subTotalPrice = cart.reduce(
@@ -86,25 +90,25 @@ const Checkout = () => {
             (acc, item) => acc + item.qty * item.discountPrice,
             0
           );
-          if(minAmount !== null && maxAmount !== null){
-          if(eligiblePrice >= minAmount && eligiblePrice <= maxAmount){
-	    const discountPrice = (eligiblePrice * couponCodeValue) / 100;
+          if (minAmount !== null && maxAmount !== null) {
+            if (eligiblePrice >= minAmount && eligiblePrice <= maxAmount) {
+              const discountPrice = (eligiblePrice * couponCodeValue) / 100;
+              setDiscountPrice(discountPrice);
+              setCouponCodeData(res.data.couponCode);
+              setCouponCode("");
+              setLoading(false);
+            } else {
+              toast.error(`Minimum Purchase of Rs.${minAmount} & Maximum Purchase of Rs.${maxAmount} is required!`);
+              setCouponCode("");
+              setLoading(false);
+            }
+          } else {
+            const discountPrice = (eligiblePrice * couponCodeValue) / 100;
             setDiscountPrice(discountPrice);
             setCouponCodeData(res.data.couponCode);
             setCouponCode("");
             setLoading(false);
-	  }else{
-	     toast.error(`Minimum Purchase of Rs.${minAmount} & Maximum Purchase of Rs.${maxAmount} is required!`);
-             setCouponCode("");
-             setLoading(false);
           }
-         }else{
-           const discountPrice = (eligiblePrice * couponCodeValue) / 100;
-            setDiscountPrice(discountPrice);
-            setCouponCodeData(res.data.couponCode);
-            setCouponCode("");
-            setLoading(false);
-         }
         }
       }
       if (res.data.couponCode === null) {
@@ -129,10 +133,12 @@ const Checkout = () => {
             user={user}
             country={country}
             setCountry={setCountry}
-            city={city}
-            setCity={setCity}
+            state={state}
+            setState={setState}
             userInfo={userInfo}
             setUserInfo={setUserInfo}
+            phoneNumber={phoneNumber}
+            setPhoneNumber={setPhoneNumber}
             address1={address1}
             setAddress1={setAddress1}
             address2={address2}
@@ -168,10 +174,12 @@ const ShippingInfo = ({
   user,
   country,
   setCountry,
-  city,
-  setCity,
+  state,
+  setState,
   userInfo,
   setUserInfo,
+  phoneNumber,
+  setPhoneNumber,
   address1,
   setAddress1,
   address2,
@@ -190,6 +198,7 @@ const ShippingInfo = ({
             <input
               type="text"
               value={user && user.name}
+              readOnly
               required
               className={`${styles.input} !w-[95%]`}
             />
@@ -198,6 +207,7 @@ const ShippingInfo = ({
             <label className="block pb-2">Email Address</label>
             <input
               type="email"
+              readOnly
               value={user && user.email}
               required
               className={`${styles.input}`}
@@ -208,12 +218,23 @@ const ShippingInfo = ({
         <div className="w-full flex pb-3">
           <div className="w-[50%]">
             <label className="block pb-2">Phone Number</label>
-            <input
-              type="number"
-              required
-              value={user && user.phoneNumber}
-              className={`${styles.input} !w-[95%]`}
-            />
+            {user && (user.phoneNumber === undefined || user.phoneNumber === "" || user.phoneNumber === 0) ?
+              <input
+                type="number"
+                required
+                value={phoneNumber}
+                className={`${styles.input} !w-[95%]`}
+                onChange={(e) => setPhoneNumber(e.target.value)}
+              />
+              :
+              <input
+                type="number"
+                required
+                readOnly
+                value={user && user.phoneNumber}
+                className={`${styles.input} !w-[95%]`}
+              />
+            }
           </div>
           <div className="w-[50%]">
             <label className="block pb-2">Zip Code</label>
@@ -233,7 +254,9 @@ const ShippingInfo = ({
             <select
               className="w-[95%] border h-[40px] rounded-[5px]"
               value={country}
-              onChange={(e) => setCountry(e.target.value)}
+              onChange={(e) => {
+                setCountry(e.target.value);
+              }}
             >
               <option className="block pb-2" value="">
                 Choose your country
@@ -250,11 +273,11 @@ const ShippingInfo = ({
             <label className="block pb-2">State</label>
             <select
               className="w-[95%] border h-[40px] rounded-[5px]"
-              value={city}
-              onChange={(e) => setCity(e.target.value)}
+              value={state}
+              onChange={(e) => setState(e.target.value)}
             >
               <option className="block pb-2" value="">
-                Choose your City
+                Choose your State
               </option>
               {State &&
                 State.getStatesOfCountry(country).map((item) => (
@@ -300,8 +323,11 @@ const ShippingInfo = ({
       {userInfo && (
         <div>
           {user &&
+            user.addresses.length === 0 ?
+            <div className="mx-5 mt-2">No saved address</div>
+            :
             user.addresses.map((item, index) => (
-              <div className="w-full flex mt-1">
+              <div className="w-full flex mx-5 mt-2" key={index}>
                 <input
                   type="checkbox"
                   className="mr-3"
@@ -311,7 +337,7 @@ const ShippingInfo = ({
                     setAddress2(item.address2) ||
                     setZipCode(item.zipCode) ||
                     setCountry(item.country) ||
-                    setCity(item.city)
+                    setState(item.state)
                   }
                 />
                 <h2>{item.addressType}</h2>

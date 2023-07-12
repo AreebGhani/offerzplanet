@@ -1,8 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { AiOutlineArrowRight, AiOutlineMoneyCollect } from "react-icons/ai";
 import styles from "../../styles/styles";
 import { Link } from "react-router-dom";
-import Loader from "../Layout/Loader";
 import RenderExpandableCell from "../Layout/RenderExpandableCell";
 import { MdBorderClear } from "react-icons/md";
 import { useDispatch, useSelector } from "react-redux";
@@ -13,14 +12,14 @@ import { DataGrid } from "@material-ui/data-grid";
 
 const DashboardHero = () => {
   const dispatch = useDispatch();
-  const { orders } = useSelector((state) => state.order);
-  const { seller } = useSelector((state) => state.seller);
-  const { products, isLoading } = useSelector((state) => state.products);
+  const { orders, isLoading } = useSelector((state) => state.order);
+  const { seller, } = useSelector((state) => state.seller);
+  const { products } = useSelector((state) => state.products);
 
   useEffect(() => {
-     dispatch(getAllOrdersOfShop(seller._id));
-     dispatch(getAllProductsShop(seller._id));
-  }, [dispatch]);
+    dispatch(getAllOrdersOfShop(seller._id));
+    dispatch(getAllProductsShop(seller._id));
+  }, [dispatch, seller._id]);
 
   const availableBalance = seller?.availableBalance.toFixed(2);
 
@@ -39,7 +38,7 @@ const DashboardHero = () => {
       flex: 0.8,
       renderCell: params => <RenderExpandableCell {...params} />,
       cellClassName: (params) => {
-       return params.getValue(params.id, "status") === "Delivered" || params.getValue(params.id, "status") === "Refund Success"
+        return params.getValue(params.id, "status") === "Delivered" || params.getValue(params.id, "status") === "Refund Success"
           ? "greenColor"
           : params.getValue(params.id, "status") === "Refund Denied"
             ? "redColor"
@@ -89,17 +88,19 @@ const DashboardHero = () => {
 
   orders && orders.forEach((item) => {
     row.push({
-        id: item._id,
-        itemsQty: item.cart.reduce((acc, item) => acc + item.qty, 0),
-        total: "Rs." + item.totalPrice,
-        status: item.status,
-      });
+      id: item._id,
+      itemsQty: item.cart.reduce((acc, item) => acc + item.qty, 0),
+      total: "Rs." + item.totalPrice,
+      status: item.status,
+    });
   });
 
-  if(isLoading){
-     return (
-	<Loader/>
-     )
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center w-full h-screen">
+        <div className="rounded-full border-t-4 border-b-4 border-red-600 h-20 w-20 animate-spin"></div>
+      </div>
+    )
   }
 
   return (
@@ -163,13 +164,13 @@ const DashboardHero = () => {
       <br />
       <h3 className="text-[22px] font-Poppins pb-2">Latest Orders</h3>
       <div className="w-full min-h-[45vh] bg-white rounded">
-      <DataGrid
-        rows={row}
-        columns={columns}
-        pageSize={3}
-        disableSelectionOnClick
-        autoHeight
-      />
+        <DataGrid
+          rows={row}
+          columns={columns}
+          pageSize={3}
+          disableSelectionOnClick
+          autoHeight
+        />
       </div>
     </div>
   );

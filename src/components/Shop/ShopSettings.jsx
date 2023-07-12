@@ -9,14 +9,13 @@ import { toast } from "react-toastify";
 
 const ShopSettings = () => {
   const { seller } = useSelector((state) => state.seller);
-  const [avatar,setAvatar] = useState();
-  const [name,setName] = useState(seller && seller.name);
-  const [description,setDescription] = useState(seller && seller.description ? seller.description : "");
-  const [address,setAddress] = useState(seller && seller.address);
-  const [phoneNumber,setPhoneNumber] = useState(seller && seller.phoneNumber);
-  const [zipCode,setZipcode] = useState(seller && seller.zipCode);
+  const [avatar, setAvatar] = useState();
+  const [name, setName] = useState(seller && seller.name);
+  const [description, setDescription] = useState(seller && seller.description ? seller.description : "");
+  const [address, setAddress] = useState(seller && seller.address);
+  const [phoneNumber, setPhoneNumber] = useState(seller && seller.phoneNumber);
+  const [zipCode, setZipcode] = useState(seller && seller.zipCode);
   const [loading, setLoading] = useState(false);
-
 
   const dispatch = useDispatch();
 
@@ -28,17 +27,17 @@ const ShopSettings = () => {
     const formData = new FormData();
 
     formData.append("image", e.target.files[0]);
-    
-    await axios.put(`${server}/shop/update-shop-avatar`, formData,{
-        headers: {
-            "Content-Type": "multipart/form-data",
-        },
-        withCredentials: true,
+
+    await axios.put(`${server}/shop/update-shop-avatar`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+      withCredentials: true,
     }).then((res) => {
-        dispatch(loadSeller());
-        toast.success("Avatar updated successfully!")
+      dispatch(loadSeller());
+      toast.success("Avatar updated successfully!")
     }).catch((error) => {
-        toast.error(error.response.data.message);
+      toast.error(error.response.data.message);
     })
 
   };
@@ -47,18 +46,18 @@ const ShopSettings = () => {
     e.preventDefault();
     setLoading(true);
     await axios.put(`${server}/shop/update-seller-info`, {
-        name,
-        address,
-        zipCode,
-        phoneNumber,
-        description,
-    }, {withCredentials: true}).then((res) => {
-        setLoading(false);
-        toast.success("Shop info updated succesfully!");
-        dispatch(loadSeller());
-    }).catch((error)=> {
-        setLoading(false);
-        toast.error(error.response.data.message);
+      name,
+      address,
+      zipCode,
+      phoneNumber,
+      description,
+    }, { withCredentials: true }).then((res) => {
+      setLoading(false);
+      toast.success("Shop info updated succesfully!");
+      dispatch(loadSeller());
+    }).catch((error) => {
+      setLoading(false);
+      toast.error(error.response.data.message);
     })
   };
 
@@ -91,7 +90,6 @@ const ShopSettings = () => {
 
         {/* shop info */}
         <form
-          aria-aria-required={true}
           className="flex flex-col items-center"
           onSubmit={updateHandler}
         >
@@ -112,18 +110,19 @@ const ShopSettings = () => {
             <div className="w-full pl-[3%]">
               <label className="block pb-2">Shop description</label>
             </div>
-            <input
+            <textarea
+              cols="30"
+              rows="8"
               type="name"
-              placeholder={`${
-                seller?.description
+              placeholder={`${seller?.description
                   ? seller.description
                   : "Enter your shop description"
-              }`}
+                }`}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className={`${styles.input} !w-[95%] mb-4 800px:mb-0`}
+              className={`${styles.input} !w-[95%] mb-4 800px:mb-0 focus:outline-none`}
               required
-            />
+            ></textarea>
           </div>
           <div className="w-[100%] flex items-center flex-col 800px:w-[50%] mt-5">
             <div className="w-full pl-[3%]">

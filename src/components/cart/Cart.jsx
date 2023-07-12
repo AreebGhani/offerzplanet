@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { RxCross1 } from "react-icons/rx";
 import { IoBagHandleOutline } from "react-icons/io5";
 import { HiOutlineMinus, HiPlus } from "react-icons/hi";
@@ -7,11 +7,52 @@ import { Link } from "react-router-dom";
 import { backend_url } from "../../server";
 import { useDispatch, useSelector } from "react-redux";
 import { addTocart, removeFromCart } from "../../redux/actions/cart";
+import { getAllProducts } from "../../redux/actions/product";
+import { getAllEvents } from "../../redux/actions/event";
 import { toast } from "react-toastify";
 
 const Cart = ({ setOpenCart }) => {
-  const { cart } = useSelector((state) => state.cart);
+
   const dispatch = useDispatch();
+  const { cart } = useSelector((state) => state.cart);
+  const { allProducts } = useSelector((state) => state.products);
+  const { allEvents } = useSelector((state) => state.events);
+
+  useEffect(() => {
+    dispatch(getAllProducts());
+    dispatch(getAllEvents());
+  }, [dispatch]);
+
+  useEffect(() => {
+    const checkProducts = () => {
+      const validCartItems = cart.filter(cartItem => {
+        return allProducts.some(product => product._id === cartItem._id);
+      });
+
+      if (validCartItems.length !== cart.length) {
+        const invalidProductIds = cart
+          .filter(cartItem => !validCartItems.includes(cartItem))
+          .map(cartItem => cartItem._id);
+        dispatch(removeFromCart(invalidProductIds));
+      }
+    };
+
+    const checkEvents = () => {
+      const validCartItems = cart.filter(cartItem => {
+        return allEvents.some(event => event._id === cartItem._id);
+      });
+
+      if (validCartItems.length !== cart.length) {
+        const invalidEventIds = cart
+          .filter(cartItem => !validCartItems.includes(cartItem))
+          .map(cartItem => cartItem._id);
+        dispatch(removeFromCart(invalidEventIds));
+      }
+    };
+
+    checkProducts();
+    checkEvents();
+  }, []);
 
   const removeFromCartHandler = (data) => {
     dispatch(removeFromCart(data));
@@ -32,13 +73,13 @@ const Cart = ({ setOpenCart }) => {
         {cart && cart.length === 0 ? (
           <div className="w-full h-screen flex items-center justify-center">
             <div className="flex w-full justify-end pt-5 pr-5 fixed top-3 right-3">
-               <RxCross1 
+              <RxCross1
                 size={25}
                 className="cursor-pointer"
                 onClick={() => setOpenCart(false)}
-                />
+              />
             </div>
-            <h5>Cart Items is empty!</h5>
+            <h5>Your Cart is Empty!</h5>
           </div>
         ) : (
           <>

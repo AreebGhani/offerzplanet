@@ -8,7 +8,6 @@ const RenderExpandableCell = (props) => {
   const textElementRef = useRef(null)
 
   const checkOverflow = () => {
-    // Using getBoundingClientRect, instead of scrollWidth and clientWidth, to get width with fractional accuracy
     const clientWidth = textElementRef.current.getBoundingClientRect().width
 
     textElementRef.current.style.overflow = "visible"

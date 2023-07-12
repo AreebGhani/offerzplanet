@@ -5,17 +5,17 @@ import React, { useEffect, useState } from "react";
 import { AiOutlineEye } from "react-icons/ai";
 import { Link } from "react-router-dom";
 import { server } from "../../server";
-import Loader from "../Layout/Loader";
 import RenderExpandableCell from "../Layout/RenderExpandableCell";
 
 const AllEvents = () => {
   const [events, setEvents] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+
   useEffect(() => {
     axios.get(`${server}/event/admin-all-events`, { withCredentials: true }).then((res) => {
       setEvents(res.data.events);
       setIsLoading(false);
-    })
+    }).catch((e) => setIsLoading(false));
   }, []);
 
   const columns = [
@@ -91,22 +91,24 @@ const AllEvents = () => {
       });
     });
 
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center w-full h-screen">
+        <div className="rounded-full border-t-4 border-b-4 border-red-600 h-20 w-20 animate-spin"></div>
+      </div>
+    )
+  }
+
   return (
-    <>
-      {isLoading ? (
-        <Loader />
-      ) : (
-        <div className="w-full mx-8 pt-1 mt-10 bg-white">
-          <DataGrid
-            rows={row}
-            columns={columns}
-            pageSize={8}
-            disableSelectionOnClick
-            autoHeight
-          />
-        </div>
-      )}
-    </>
+    <div className="w-full mx-8 pt-1 mt-10 bg-white">
+      <DataGrid
+        rows={row}
+        columns={columns}
+        pageSize={8}
+        disableSelectionOnClick
+        autoHeight
+      />
+    </div>
   );
 };
 

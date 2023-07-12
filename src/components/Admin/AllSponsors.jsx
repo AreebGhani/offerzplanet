@@ -5,9 +5,9 @@ import { Button } from "@material-ui/core";
 import axios from "axios";
 import { backend_url, server } from '../../server';
 import { AiOutlineDelete } from 'react-icons/ai';
-import Loader from "../Layout/Loader";
 import RenderExpandableCell from "../Layout/RenderExpandableCell";
 import { toast } from "react-toastify";
+import { BsPencil } from 'react-icons/bs';
 
 const AllSponsors = () => {
     const navigate = useNavigate();
@@ -18,23 +18,30 @@ const AllSponsors = () => {
         axios.get(`${server}/sponsors/get-all-sponsors`, { withCredentials: true }).then((res) => {
             setSponsors(res.data.sponsors);
             setIsLoading(false);
-        })
+        }).catch((e) => setIsLoading(false));
     }, []);
 
     const handleDelete = async (id) => {
-	await axios.delete(
-            `${server}/sponsors/delete-sponsor/${id}`,
-            { withCredentials: true, }
-        ).then(({data}) => {
-	   if (data.success) {
-             toast.success("Sponsor deleted successfully!");
-             navigate("/admin-sponsors");
-	     window.location.reload();
-           }
-	}).catch((error) => {
-	    toast.error(error.response.data.message);
-	});
+        let e = window.confirm("Do you want to Delete it?");
+        if (e) {
+            await axios.delete(
+                `${server}/sponsors/delete-sponsor/${id}`,
+                { withCredentials: true, }
+            ).then(({ data }) => {
+                if (data.success) {
+                    toast.success("Sponsor deleted successfully!");
+                    navigate("/admin-sponsors");
+                    window.location.reload();
+                }
+            }).catch((error) => {
+                toast.error(error.response.data.message);
+            });
+        }
     };
+
+    const handleEdit = (data) => {
+        navigate(`/admin-sponsor/new?_id=${data.id}&title=${data.title}&description=${data.description}&buttonText=${data.buttonText}&buttonLink=${data.buttonLink}&image=${data.image}`);
+    }
 
     const columns = [
         {
@@ -74,6 +81,23 @@ const AllSponsors = () => {
             renderCell: (params) => <img className='w-auto h-auto object-contain border-none' src={`${backend_url}${params.value}`} alt='img' />,
         },
         {
+            field: "Edit",
+            flex: 0.4,
+            minWidth: 100,
+            headerName: "",
+            type: "number",
+            sortable: false,
+            renderCell: (params) => {
+                return (
+                    <>
+                        <Button onClick={() => handleEdit(params.row)}>
+                            <BsPencil size={20} />
+                        </Button>
+                    </>
+                );
+            },
+        },
+        {
             field: "Delete",
             flex: 0.4,
             minWidth: 100,
@@ -106,30 +130,32 @@ const AllSponsors = () => {
             });
         });
 
+    if (isLoading) {
+        return (
+            <div className="flex justify-center items-center w-full h-screen">
+                <div className="rounded-full border-t-4 border-b-4 border-red-600 h-20 w-20 animate-spin"></div>
+            </div>
+        )
+    }
+
     return (
-        <>
-            {isLoading ? (
-                <Loader />
-            ) : (
-                <div className="w-full mx-8 pt-1 mt-10 bg-white">
-                    <div className='m-5 text-center'>
-                        <Link to={'/admin-sponsor/new'}>
-                            <Button variant="outlined">
-                                Add New Slider
-                            </Button>
-                        </Link>
-                    </div >
-                    <DataGrid
-                        rows={row}
-                        columns={columns}
-                        pageSize={2}
-                        disableSelectionOnClick
-                        autoHeight
-                        rowHeight={200}
-                    />
-                </div>
-            )}
-        </>
+        <div className="w-full mx-8 pt-1 mt-10 bg-white">
+            <div className='m-5 text-center'>
+                <Link to={'/admin-sponsor/new'}>
+                    <Button variant="outlined">
+                        Add New Slider
+                    </Button>
+                </Link>
+            </div >
+            <DataGrid
+                rows={row}
+                columns={columns}
+                pageSize={2}
+                disableSelectionOnClick
+                autoHeight
+                rowHeight={200}
+            />
+        </div>
     );
 
 }

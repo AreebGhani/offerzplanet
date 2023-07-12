@@ -12,7 +12,7 @@ const AdminDashboardPage = () => {
           <div className="w-[80px] 800px:w-[330px]">
             <AdminSideBar active={1} />
           </div>
-          <AdminDashboardMain />
+            <AdminDashboardMain />
         </div>
       </div>
     </div>

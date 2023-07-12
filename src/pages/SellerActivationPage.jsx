@@ -1,5 +1,5 @@
 import axios from "axios";
-import React, { useEffect } from "react";
+import React from "react";
 import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { server } from "../server";
@@ -7,24 +7,23 @@ import { server } from "../server";
 const SellerActivationPage = () => {
   const { activation_token } = useParams();
   const [error, setError] = useState(false);
+  const [sent, setSent] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    if (activation_token) {
-      const sendRequest = async () => {
-        await axios
-          .post(`${server}/shop/activation`, {
-            activation_token,
-          })
-          .then((res) => {
-            console.log(res);
-          })
-          .catch((err) => {
-            setError(true);
-          });
-      };
-      sendRequest();
+  const handleSubmit = async () => {
+    setLoading(true);
+    try {
+      await axios.post(`${server}/shop/activation`, {
+        activation_token,
+      });
+      setLoading(false);
+      setSent(true);
+    } catch (error) {
+      setSent(true);
+      setLoading(false);
+      setError(true);
     }
-  }, []);
+  };
 
   return (
     <div
@@ -32,21 +31,51 @@ const SellerActivationPage = () => {
         width: "100%",
         height: "100vh",
         display: "flex",
-	flexDirection: "column",
+        flexDirection: "column",
         justifyContent: "center",
         alignItems: "center",
       }}
     >
-      {error ? (
-        <p>Your token is expired!</p>
-      ) : (
-        <p>Your account has been created suceessfully!</p>
+      {sent && error && (
+        <>
+          <p>Your token is expired!</p>
+          <Link
+            to="/shop-create"
+            className="mt-5 flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700"
+          >
+            Sign Up
+          </Link>
+        </>
       )}
-<Link to="/shop-login"
-                className="mt-10 flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700"
-              >
-                Sign in
-              </Link>
+      {sent && !error && (
+        <>
+          <p>Your shop has been created successfully!</p>
+          <Link
+            to="/shop-login"
+            className="mt-5 flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700"
+          >
+            Sign in
+          </Link>
+        </>
+      )}
+      {!sent && (
+        <>
+          <button
+            onClick={handleSubmit}
+            className="my-5 h-[40px] flex justify-center py-2 px-4 border border-red-700 text-sm font-medium rounded-md text-red-700 bg-white hover:bg-red-700 hover:text-white"
+            disabled={loading}
+          >
+            {loading ? "Loading..." : "Activate Your Shop"}
+          </button>
+          <p>– – – – – – OR – – – – – –</p>
+          <Link
+            to="/"
+            className="mt-5 flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700"
+          >
+            Home
+          </Link>
+        </>
+      )}
     </div>
   );
 };

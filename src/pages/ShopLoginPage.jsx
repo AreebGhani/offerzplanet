@@ -5,17 +5,15 @@ import ShopLogin from "../components/Shop/ShopLogin";
 
 const ShopLoginPage = () => {
   const navigate = useNavigate();
-  const { isSeller,isLoading } = useSelector((state) => state.seller);
+  const { isSeller } = useSelector((state) => state.seller);
 
   useEffect(() => {
-    if(isSeller === true){
+    if (isSeller === true) {
       navigate(`/dashboard`);
     }
-  }, [isLoading,isSeller])
+  }, [isSeller, navigate])
   return (
-    <div>
-        <ShopLogin />
-    </div>
+    <ShopLogin />
   )
 }
 

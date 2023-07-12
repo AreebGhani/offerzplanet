@@ -5,17 +5,15 @@ import ShopForgetPassword from "../components/Shop/ShopForgetPassword";
 
 const ShopForgetPasswordPage = () => {
   const navigate = useNavigate();
-  const { isSeller,isLoading } = useSelector((state) => state.seller);
+  const { isSeller } = useSelector((state) => state.seller);
 
   useEffect(() => {
-    if(isSeller === true){
+    if (isSeller === true) {
       navigate(`/dashboard`);
     }
-  }, [isLoading,isSeller])
+  }, [isSeller, navigate])
   return (
-    <div>
-        <ShopForgetPassword />
-    </div>
+    <ShopForgetPassword />
   )
 }
 

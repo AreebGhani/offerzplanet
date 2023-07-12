@@ -8,15 +8,13 @@ const ForgetPasswordPage = () => {
   const { isAuthenticated } = useSelector((state) => state.user);
 
   useEffect(() => {
-    if(isAuthenticated === true){
+    if (isAuthenticated === true) {
       navigate("/profile");
     }
-  }, [])
-  
+  }, [isAuthenticated, navigate])
+
   return (
-    <div>
-        <ForgetPassword />
-    </div>
+    <ForgetPassword />
   )
 }
 

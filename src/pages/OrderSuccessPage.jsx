@@ -6,11 +6,11 @@ import animationData from "../Assests/animations/107043-success.json";
 
 const OrderSuccessPage = () => {
   return (
-    <div>
+    <>
       <Header />
       <Success />
       <Footer />
-    </div>
+    </>
   );
 };
 

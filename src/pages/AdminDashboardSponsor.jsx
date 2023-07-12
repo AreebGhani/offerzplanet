@@ -12,7 +12,7 @@ const AdminDashboardSponsor = () => {
           <div className="w-[80px] 800px:w-[330px]">
             <AdminSideBar active={10} />
           </div>
-          <AllSponsors />
+            <AllSponsors />
         </div>
       </div>
     </div>

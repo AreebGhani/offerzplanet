@@ -13,7 +13,7 @@ const AdminDashboardCreateSponsor = () => {
             <AdminSideBar active={10} />
           </div>
           <div className="w-full justify-center flex">
-            <CreateSponsor />
+              <CreateSponsor />
           </div>
         </div>
       </div>

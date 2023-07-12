@@ -13,7 +13,7 @@ const AdminDashboardCreateCategory = () => {
             <AdminSideBar active={6} />
           </div>
           <div className="w-full justify-center flex">
-            <CreateCategory />
+              <CreateCategory />
           </div>
         </div>
       </div>

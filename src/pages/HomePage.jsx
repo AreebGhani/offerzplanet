@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useEffect } from 'react'
 import Header from "../components/Layout/Header";
 import Hero from "../components/Route/Hero/Hero";
 import Categories from "../components/Route/Categories/Categories";
@@ -8,25 +8,22 @@ import Events from "../components/Events/Events";
 import Sponsored from "../components/Route/Sponsored";
 import Footer from "../components/Layout/Footer";
 import Loader from "../components/Layout/Loader";
-import axios from "axios";
-import { server } from '../server';
+import { getAllProducts } from '../redux/actions/product';
+import { useDispatch } from 'react-redux';
+import { getAllEvents } from '../redux/actions/event';
 
 const HomePage = () => {
-  const [loading, setLoading] = useState(true);
+  const dispatch = useDispatch();
 
   useEffect(() => {
-    axios.get(`${server}/sponsors/get-all-sponsors`, { withCredentials: true }).then((res) => {
-        setLoading(false);
-    })
-  }, []);
-
-  if(loading){
-    return <Loader/>;
-  }
+    dispatch(getAllProducts());
+    dispatch(getAllEvents());
+  }, [dispatch]);
 
   return (
-    <div>
-        <Header activeHeading={1} />
+    <>
+      <Header activeHeading={1} />
+      <Loader>
         <Hero />
         <Categories />
         <BestDeals />
@@ -34,7 +31,8 @@ const HomePage = () => {
         <FeaturedProduct />
         <Sponsored />
         <Footer />
-    </div>
+      </Loader>
+    </>
   )
 }
 

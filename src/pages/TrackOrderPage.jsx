@@ -5,11 +5,11 @@ import TrackOrder from "../components/Profile/TrackOrder";
 
 const TrackOrderPage = () => {
   return (
-    <div>
-        <Header />
+    <>
+      <Header />
         <TrackOrder />
         <Footer />
-    </div>
+    </>
   )
 }
 

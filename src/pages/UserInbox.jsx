@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
 import Header from "../components/Layout/Header";
-import Loader from "../components/Layout/Loader";
 import { useSelector } from "react-redux";
 import socketIO from "socket.io-client";
 import { format } from "timeago.js";
@@ -22,10 +21,8 @@ const UserInbox = () => {
   const [newMessage, setNewMessage] = useState("");
   const [userData, setUserData] = useState(null);
   const [onlineUsers, setOnlineUsers] = useState([]);
-  const [images, setImages] = useState();
   const [activeStatus, setActiveStatus] = useState(false);
   const [open, setOpen] = useState(false);
-  const [loading, setLoading] = useState(true);
   const scrollRef = useRef(null);
 
   useEffect(() => {
@@ -54,11 +51,7 @@ const UserInbox = () => {
           }
         );
         setConversations(resonse.data.conversations);
-	setLoading(false);
-      } catch (error) {
-        setLoading(false);
-        // console.log(error);
-      }
+      } catch (error) { }
     };
     getConversation();
   }, [user, messages]);
@@ -88,9 +81,7 @@ const UserInbox = () => {
           `${server}/message/get-all-messages/${currentChat?._id}`
         );
         setMessages(response.data.messages);
-      } catch (error) {
-        console.log(error);
-      }
+      } catch (error) { }
     };
     getMessage();
   }, [currentChat]);
@@ -122,13 +113,8 @@ const UserInbox = () => {
             setMessages([...messages, res.data.message]);
             updateLastMessage();
           })
-          .catch((error) => {
-            console.log(error);
-          });
       }
-    } catch (error) {
-      console.log(error);
-    }
+    } catch (error) { }
   };
 
   const updateLastMessage = async () => {
@@ -145,14 +131,10 @@ const UserInbox = () => {
       .then((res) => {
         setNewMessage("");
       })
-      .catch((error) => {
-        console.log(error);
-      });
   };
 
   const handleImageUpload = async (e) => {
     const file = e.target.files[0];
-    setImages(file);
     imageSendingHandler(file);
   };
 
@@ -182,13 +164,10 @@ const UserInbox = () => {
           },
         })
         .then((res) => {
-          setImages();
           setMessages([...messages, res.data.message]);
           updateLastMessageForImage();
         });
-    } catch (error) {
-      console.log(error);
-    }
+    } catch (error) { }
   };
 
   const updateLastMessageForImage = async () => {
@@ -207,45 +186,43 @@ const UserInbox = () => {
 
   return (
     <div className="w-full">
-    {loading ? <Loader/> 
-     :
-      !open && (
-        <>
-          <Header />
+        {!open && (
+          <>
+            <Header />
             {conversations && conversations.length === 0 ? <p className="mt-20 text-center w-full pb-[100px] text-[20px]">No Message Yet!</p> : <h1 className="text-center text-[30px] py-3 font-Poppins">All Messages</h1>}
-          {/* All messages list */}
-          {conversations &&
-            conversations.map((item, index) => (
-              <MessageList
-                data={item}
-                key={index}
-                index={index}
-                setOpen={setOpen}
-                setCurrentChat={setCurrentChat}
-                me={user?._id}
-                setUserData={setUserData}
-                userData={userData}
-                online={onlineCheck(item)}
-                setActiveStatus={setActiveStatus}
-              />
-            ))}
-        </>
-      )}
+            {/* All messages list */}
+            {conversations &&
+              conversations.map((item, index) => (
+                <MessageList
+                  data={item}
+                  key={index}
+                  index={index}
+                  setOpen={setOpen}
+                  setCurrentChat={setCurrentChat}
+                  me={user?._id}
+                  setUserData={setUserData}
+                  userData={userData}
+                  online={onlineCheck(item)}
+                  setActiveStatus={setActiveStatus}
+                />
+              ))}
+          </>
+        )}
 
-      {open && (
-        <SellerInbox
-          setOpen={setOpen}
-          newMessage={newMessage}
-          setNewMessage={setNewMessage}
-          sendMessageHandler={sendMessageHandler}
-          messages={messages}
-          sellerId={user._id}
-          userData={userData}
-          activeStatus={activeStatus}
-          scrollRef={scrollRef}
-          handleImageUpload={handleImageUpload}
-        />
-      )}
+        {open && (
+          <SellerInbox
+            setOpen={setOpen}
+            newMessage={newMessage}
+            setNewMessage={setNewMessage}
+            sendMessageHandler={sendMessageHandler}
+            messages={messages}
+            sellerId={user._id}
+            userData={userData}
+            activeStatus={activeStatus}
+            scrollRef={scrollRef}
+            handleImageUpload={handleImageUpload}
+          />
+        )}
     </div>
   );
 };
@@ -276,18 +253,15 @@ const MessageList = ({
       try {
         const res = await axios.get(`${server}/shop/get-shop-info/${userId}`);
         setUser(res.data.shop);
-      } catch (error) {
-        console.log(error);
-      }
+      } catch (error) { }
     };
     getUser();
-  }, [me, data]);
+  }, [me, data, online, setActiveStatus]);
 
   return (
     <div
-      className={`w-full flex p-3 px-3 ${
-        active === index ? "bg-[#00000010]" : "bg-transparent"
-      }  cursor-pointer`}
+      className={`w-full flex p-3 px-3 ${active === index ? "bg-[#00000010]" : "bg-transparent"
+        }  cursor-pointer`}
       onClick={(e) =>
         setActive(index) ||
         handleClick(data._id) ||
@@ -313,7 +287,7 @@ const MessageList = ({
         <p className="text-[16px] text-[#000c]">
           {data?.lastMessageId !== userData?._id
             ? "You:"
-            : userData?.name.split(" ")[0] + ": "}{" "}
+            : userData && userData?.name.split(" ")[0] + ": "}{" "}
           {data?.lastMessage}
         </p>
       </div>
@@ -360,10 +334,9 @@ const SellerInbox = ({
         {messages &&
           messages.map((item, index) => (
             <div
-		key={index}
-              className={`flex w-full my-2 ${
-                item.sender === sellerId ? "justify-end" : "justify-start"
-              }`}
+              key={index}
+              className={`flex w-full my-2 ${item.sender === sellerId ? "justify-end" : "justify-start"
+                }`}
               ref={scrollRef}
             >
               {item.sender !== sellerId && (
@@ -377,14 +350,14 @@ const SellerInbox = ({
                 <img
                   src={`${backend_url}${item.images}`}
                   className="w-[300px] h-[300px] object-cover rounded-[10px] ml-2 mb-2"
+                  alt="images"
                 />
               )}
               {item.text !== "" && (
                 <div>
                   <div
-                    className={`w-max p-2 rounded ${
-                      item.sender === sellerId ? "bg-[#000]" : "bg-[#38c776]"
-                    } text-[#fff] h-min`}
+                    className={`w-max p-2 rounded ${item.sender === sellerId ? "bg-[#000]" : "bg-[#38c776]"
+                      } text-[#fff] h-min`}
                   >
                     <p>{item.text}</p>
                   </div>
@@ -400,7 +373,6 @@ const SellerInbox = ({
 
       {/* send message input */}
       <form
-        aria-required={true}
         className="p-3 relative w-full flex justify-between items-center"
         onSubmit={sendMessageHandler}
       >
@@ -420,7 +392,7 @@ const SellerInbox = ({
           <input
             type="text"
             required
-	    autofocus
+            autoFocus
             placeholder="Enter your message..."
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}

@@ -6,14 +6,14 @@ import DashboardMessages from "../../components/Shop/DashboardMessages";
 const ShopInboxPage = () => {
   return (
     <div>
-    <DashboardHeader />
-    <div className="flex items-start justify-between w-full">
-      <div className="w-[80px] 800px:w-[330px]">
-        <DashboardSideBar active={8} />
+      <DashboardHeader />
+      <div className="flex items-start justify-between w-full">
+        <div className="w-[80px] 800px:w-[330px]">
+          <DashboardSideBar active={8} />
+        </div>
+          <DashboardMessages />
       </div>
-       <DashboardMessages />
     </div>
-  </div>
   )
 }
 

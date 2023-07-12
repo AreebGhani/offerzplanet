@@ -12,7 +12,7 @@ const AdminDashboardBrand = () => {
           <div className="w-[80px] 800px:w-[330px]">
             <AdminSideBar active={9} />
           </div>
-          <AllBrands />
+            <AllBrands />
         </div>
       </div>
     </div>

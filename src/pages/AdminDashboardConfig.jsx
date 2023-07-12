@@ -13,7 +13,7 @@ const AdminDashboardConfig = () => {
             <AdminSideBar active={11} />
           </div>
           <div className="w-full justify-center flex">
-            <AdminConfig />
+              <AdminConfig />
           </div>
         </div>
       </div>

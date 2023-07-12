@@ -40,6 +40,7 @@ import {
   ShopSettingsPage,
   ShopWithDrawMoneyPage,
   ShopInboxPage,
+  ShopHomePage,
 } from "./routes/ShopRoutes";
 import {
   AdminDashboardPage,
@@ -63,7 +64,6 @@ import Store from "./redux/store";
 import { loadSeller, loadUser } from "./redux/actions/user";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import ProtectedAdminRoute from "./routes/ProtectedAdminRoute";
-import { ShopHomePage } from "./ShopRoutes.js";
 import SellerProtectedRoute from "./routes/SellerProtectedRoute";
 import { getAllProducts } from "./redux/actions/product";
 import { getAllEvents } from "./redux/actions/event";
@@ -392,7 +392,7 @@ const App = () => {
       </Routes>
       <ToastContainer
         position="bottom-center"
-        autoClose={5000}
+        autoClose={2000}
         hideProgressBar={false}
         newestOnTop={false}
         closeOnClick

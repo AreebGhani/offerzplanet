@@ -6,9 +6,9 @@ import OrderDetails from "../../components/Shop/OrderDetails";
 const ShopOrderDetails = () => {
   return (
     <div>
-         <DashboardHeader />
-         <OrderDetails />
-          <Footer />
+      <DashboardHeader />
+        <OrderDetails />
+      <Footer />
     </div>
   )
 }

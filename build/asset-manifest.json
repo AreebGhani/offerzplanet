@@ -1,0 +1,14 @@
+{
+  "files": {
+    "main.css": "/static/css/main.e1c878d1.css",
+    "main.js": "/static/js/main.c6c1c94b.js",
+    "static/media/footer-payment.webp": "/static/media/footer-payment.bac37fdeef858b7f2e76.webp",
+    "index.html": "/index.html",
+    "main.e1c878d1.css.map": "/static/css/main.e1c878d1.css.map",
+    "main.c6c1c94b.js.map": "/static/js/main.c6c1c94b.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.e1c878d1.css",
+    "static/js/main.c6c1c94b.js"
+  ]
+}

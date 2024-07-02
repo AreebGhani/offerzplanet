@@ -1,5 +1,5 @@
-export const server = "http://ec2-44-201-242-159.compute-1.amazonaws.com/api";
+export const server = "https://offerzplanet-backend.onrender.com/api";
 
-export const backend_url = "http://ec2-44-201-242-159.compute-1.amazonaws.com/";
+export const backend_url = "https://offerzplanet-backend.onrender.com/";
 
-export const socket_endpoint = "https://offerzplanet-socket-io.vercel.app/";
+export const socket_endpoint = "https://offerzplanet-socket-io.vercel.app/socket";
